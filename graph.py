@@ -12,7 +12,8 @@ class _Station:
 
     Instance Attributes:
       - name: the name of the train station
-      - neighbours: a set of the stations one stop away from self
+      - neighbours: a dict of the stations one stop away from self, mapping 
+        the station name to the Euclidean distance from the station to self
       - x: the x-position of the train station on a Euclidean plane
       - y: the y-position of the train station on a Euclidean plane
 
@@ -20,7 +21,8 @@ class _Station:
       - name != ''
     """
     name: str
-    neighbours: set[_Station]
+    # neighbours: set[_Station]  # old neighbours attribute
+    neighbours: dict[str, float]
     x: float
     y: float
 
@@ -36,6 +38,8 @@ class TransitSystem:
     """Description... it's like a graph
     """
     _stations: dict[str, _Station]
+    # nested dict is name of neighbouring stations with values being distance to those
+    # _new_dict: dict[str, dict[str, float]]
 
     def __init__(self) -> None:
         """..."""
@@ -62,7 +66,10 @@ class TransitSystem:
         pass
 
     def add_station(self, station: _Station) -> None:
-        """Add <station> to this graph.
+        """Add _Station object <station> to this graph.
+
+        Implementation notes:
+          - do not raise an error when called on a station that is already in self
         """
         if station in self:
             pass
@@ -79,12 +86,16 @@ class TransitSystem:
         Implementation notes:
           - it's fine if an edge already exists between the stations
         """
-        s1 = self._stations[station1]  # get _Station object for station1
-        s2 = self._stations[station2]  # get _Station object for station2
+        # Get _Station objects
+        s1 = self._stations[station1]
+        s2 = self._stations[station2]
 
-        # Add the edges
-        s1.neighbours.add(s2)
-        s2.neighbours.add(s1)
+        # Compute edge length
+        edge_length = self.get_edge_length(station1, station2)
+
+        # Add the edge
+        s1.neighbours[station2] = edge_length
+        s2.neighbours[station1] = edge_length
 
     def get_edge_length(self, station1: str, station2: str) -> float:
         """Return the length of the edge connecting station1 and station2 in this graph.
