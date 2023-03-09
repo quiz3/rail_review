@@ -4,6 +4,7 @@ description
 """
 from __future__ import annotations
 from math import sqrt
+import random
 # from typing import Optional, Any
 
 
@@ -26,19 +27,75 @@ class _Station:
     y: float
 
     def __init__(self, name: str, x: float, y: float) -> None:
-        """..."""
+        """Initialize this _Station object.
+
+        The object will have the given name and x- and y-coordinates.
+
+        Preconditions:
+          - name != ''
+
+        Implementation notes:
+          - self.neighbours is initialised as an empty dict, later mutated
+            by TransitSystem methods to contain edges
+        """
         self.name = name
-        self.neighbours = set()
+        self.neighbours = {}
         self.x = x
         self.y = y
+
+    def get_edge_length_to(self, other_station: _Station) -> float:
+        """Return the length of the edge from self to other_station.
+
+        Preconditions:
+          - self and other_station in same transit system
+          - self.name != other_station.name
+          - self.name in other_station.neighbours
+          - other_station.name in self.neighbours
+        """
+        x_diff = other_station.x - self.x  # Calculate delta x
+        y_diff = other_station.y - self.y  # Calculate delta y
+
+        # Compute and return Euclidean distance between stations
+        return sqrt(x_diff**2 + y_diff**2)
+
+    def get_total_edge_length(self, visited: set[str]) -> float:
+        """Get total edge length of the graph this station is part of WITHOUT 
+        including edges that connect to stations (whose names are) in visited.
+
+        Preconditions:
+          - self.name not in visited
+          - all neighbouring stations are in the same transit system as self
+
+        Implementation notes:
+          - initially call to this method made by 
+            get_total_edge_length TransitSystem method
+          - TODO: Stephen
+        """
+        # Add self to set of visited stations
+        visited.add(self.name)
+
+        # Initialize edge length accumulator
+        edge_len_so_far = 0.0
+
+        for u in self.neighbours:
+            if u not in visited:
+                edge_length_so_far += self.get_edge_length_to(u)
+                edge_len_so_far += u.get_total_edge_length(visited)
+
+        return edge_len_so_far
 
 
 class TransitSystem:
     """Description... it's just a normal graph bro
+
+    Representation Invariants:
+      - self is a connected graph
     """
+    # Private Instance Attributes:
+    #     - _stations:
+    #         A collection of the stations contained in this graph.
+    #         Maps station name to _Station object.
     _stations: dict[str, _Station]
-    # nested dict is name of neighbouring stations with values being distance to those
-    # _new_dict: dict[str, dict[str, float]]
 
     def __init__(self) -> None:
         """..."""
@@ -120,8 +177,8 @@ class TransitSystem:
         using Euclidean distance.
 
         Implementation notes:
-          - TODO: someone lmk if <path> should be list[_Station] or list[str]
-            (a list of the station names or the station objects)
+          - TODO: someone lmk if given <path> should be list[_Station] or 
+            list[str] (a list of the station names or the station objects)
         """
         # Initialize path length accumulator
         path_length_so_far = 0.0
@@ -142,13 +199,22 @@ class TransitSystem:
 
         Implementation notes:
           - TODO: Ricky
+          - Use Dijkstra's algorithm
         """
         pass
 
     def get_total_edge_length(self) -> float:
         """Return the total edge length of this graph.
 
+        Preconditions:
+          - station names are unique
+          - self is a connected graph  # these are both already implied
+
         Implementation notes:
           - TODO: Stephen
         """
-        pass
+        starting_station = random.choice(self._stations.values())
+        return starting_station.get_total_edge_length(set())
+
+
+# NOTE: We should really run tests on all this stuff
