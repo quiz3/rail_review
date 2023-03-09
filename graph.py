@@ -13,7 +13,7 @@ class _Station:
     Instance Attributes:
       - name: the name of the train station
       - neighbours: a dict of the stations one stop away from self, mapping 
-        the station name to the Euclidean distance from the station to self
+        station name to the Euclidean distance from the station to self
       - x: the x-position of the train station on a Euclidean plane
       - y: the y-position of the train station on a Euclidean plane
 
@@ -21,7 +21,6 @@ class _Station:
       - name != ''
     """
     name: str
-    # neighbours: set[_Station]  # old neighbours attribute
     neighbours: dict[str, float]
     x: float
     y: float
@@ -35,7 +34,7 @@ class _Station:
 
 
 class TransitSystem:
-    """Description... it's like a graph
+    """Description... it's just a normal graph bro
     """
     _stations: dict[str, _Station]
     # nested dict is name of neighbouring stations with values being distance to those
@@ -57,7 +56,7 @@ class TransitSystem:
         else:  # station is a str object
             return station in self._stations
 
-    def load_from_csv(self, file_path: str) -> None:
+    def load_from_json(self, file_path: str) -> None:
         """Load TransitSystem object from file_path.
 
         Implementation notes:
@@ -119,6 +118,10 @@ class TransitSystem:
     def get_path_length(self, path: list[_Station]) -> float:
         """Return the length of the path formed by the stations in <path>
         using Euclidean distance.
+
+        Implementation notes:
+          - TODO: someone lmk if <path> should be list[_Station] or list[str]
+            (a list of the station names or the station objects)
         """
         # Initialize path length accumulator
         path_length_so_far = 0.0
