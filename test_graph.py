@@ -1,9 +1,9 @@
-from graph import TransitSystem, _Station
+from graph import TransitSystem
 
-# Singapore test
-singapore = TransitSystem()
-singapore.load_from_json("dataset/dataset/singapore.json")
-singapore.temporary_render(show_name=True)
+# Choose city for which to generate map
+TEST_CITY = 'Seoul'
 
-# Toronto test
-...
+# Show map for the TEST_CITY
+test_city = TransitSystem(TEST_CITY)
+test_city.load_from_json(f"dataset/dataset/{TEST_CITY.lower()}.json")
+test_city.temporary_render(show_name=True)

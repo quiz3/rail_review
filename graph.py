@@ -90,17 +90,22 @@ class _Station:
 class TransitSystem:
     """Description... it's just a normal graph bro
 
+    Instance Attributes:
+      - name: the name of the transit system's city
+
     Representation Invariants:
       - self is a connected graph
     """
+    name: str
     # Private Instance Attributes:
     #     - _stations:
     #         A collection of the stations contained in this graph.
     #         Maps station name to _Station object.
     _stations: dict[str, _Station]
 
-    def __init__(self) -> None:
+    def __init__(self, name: str) -> None:
         """..."""
+        self.name = name
         self._stations = {}
 
     def __contains__(self, station: str | _Station) -> bool:
@@ -242,6 +247,7 @@ class TransitSystem:
           - everything is calm
         """
         fig, ax = plt.subplots(figsize=figsize)
+        ax.set_title(self.name, size=40)
         for station_name in self._stations:
             stat = self._stations[station_name]
             ax.scatter(stat.x, stat.y, c="black")
