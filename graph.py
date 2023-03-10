@@ -126,22 +126,20 @@ class TransitSystem:
         for line_stations in dataset.values():
             station_iter = iter(line_stations.keys())
             prev_station_name = next(station_iter)
-            if prev_station_name not in self._stations:
-                station_obj = _Station(
-                        name = prev_station_name,
-                        x = line_stations[prev_station_name]["x"],
-                        y = line_stations[prev_station_name]["y"]
-                        )
-                self.add_station(station_obj)
+            station_obj = _Station(
+                    name = prev_station_name,
+                    x = line_stations[prev_station_name]["x"],
+                    y = line_stations[prev_station_name]["y"]
+                    )
+            self.add_station(station_obj)
 
             for station_name in station_iter:
-                if station_name not in self._stations:
-                    station_obj = _Station(
-                            name = station_name,
-                            x = line_stations[station_name]["x"],
-                            y = line_stations[station_name]["y"]
-                            )
-                    self.add_station(station_obj)
+                station_obj = _Station(
+                        name = station_name,
+                        x = line_stations[station_name]["x"],
+                        y = line_stations[station_name]["y"]
+                        )
+                self.add_station(station_obj)
                 self.add_edge(station_name, prev_station_name)
                 prev_station_name = station_name
         f.close()
