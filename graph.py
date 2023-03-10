@@ -1,13 +1,13 @@
-"""CSC111 Title....
+"""Rail Review!
 
-description
+CSC111 Winter 2023 Course Project
+
+TODO: file description
 """
 from __future__ import annotations
 from math import sqrt
-import random
 import json
 import matplotlib.pyplot as plt
-# from typing import Optional, Any
 
 
 class _Station:
@@ -119,7 +119,7 @@ class TransitSystem:
         """Load TransitSystem object from file_path.
 
         Implementation notes:
-          - TODO: Gursi
+          - Open file without using with-block to reduce number of nested indentations
         """
         f = open(file_path, "r")
         dataset = json.load(f)
@@ -127,23 +127,23 @@ class TransitSystem:
             station_iter = iter(line_stations.keys())
             prev_station_name = next(station_iter)
             station_obj = _Station(
-                    name = prev_station_name,
-                    x = line_stations[prev_station_name]["x"],
-                    y = line_stations[prev_station_name]["y"]
-                    )
+                name=prev_station_name,
+                x=line_stations[prev_station_name]["x"],
+                y=line_stations[prev_station_name]["y"]
+            )
+            # will not raise error if station_obj already in transit system
             self.add_station(station_obj)
 
             for station_name in station_iter:
                 station_obj = _Station(
-                        name = station_name,
-                        x = line_stations[station_name]["x"],
-                        y = line_stations[station_name]["y"]
-                        )
-                self.add_station(station_obj)
+                    name=station_name,
+                    x=line_stations[station_name]["x"],
+                    y=line_stations[station_name]["y"]
+                )
+                self.add_station(station_obj)  # no ValueError (see above)
                 self.add_edge(station_name, prev_station_name)
                 prev_station_name = station_name
         f.close()
-
 
     def add_station(self, station: _Station) -> None:
         """Add _Station object <station> to this graph.
@@ -196,21 +196,16 @@ class TransitSystem:
         # Compute and return Euclidean distance
         return sqrt(x_diff**2 + y_diff**2)
 
-    def get_path_length(self, path: list[_Station]) -> float:
-        """Return the length of the path formed by the stations in <path>
+    def get_path_length(self, path: list[str]) -> float:
+        """Return the length of the path formed by the stations in <path> 
         using Euclidean distance.
-
-        Implementation notes:
-          - TODO: someone lmk if given <path> should be list[_Station] or 
-            list[str] (a list of the station names or the station objects)
         """
         # Initialize path length accumulator
         path_length_so_far = 0.0
 
         # Iterate for each edge (pair of stations) in <path>
         for station1, station2 in zip(path[:-1], path[1:]):
-            path_length_so_far += self.get_edge_length(
-                station1.name, station2.name)
+            path_length_so_far += self.get_edge_length(station1, station2)
 
         return path_length_so_far
 
@@ -230,37 +225,39 @@ class TransitSystem:
     def get_total_edge_length(self) -> float:
         """Return the total edge length of this graph.
 
-        Preconditions:
-          - station names are unique
-          - self is a connected graph  # these are both already implied
-
         Implementation notes:
-          - TODO: Stephen
+          - call private _Station method of same name
+          - begin recursive process with first station in self._stations
         """
-        starting_station = random.choice(self._stations.values())
+        starting_station = self._stations.values()[0]
         return starting_station.get_total_edge_length(set())
 
-    def temporary_render(
-            self,
-            name_size: int = 4,
-            figsize: tuple[int, int] = (20, 10),
-            show_name: bool = True
-            ):
+    def temporary_render(self,
+                         name_size: int = 4,
+                         figsize: tuple[int, int] = (20, 10),
+                         show_name: bool = True) -> None:
+        """Temporary rendering method until Zain makes the real one.
+
+        Preconditions:
+          - everything is calm
+        """
         fig, ax = plt.subplots(figsize=figsize)
         for station_name in self._stations:
             stat = self._stations[station_name]
             ax.scatter(stat.x, stat.y, c="black")
             if show_name:
-                ax.annotate(stat.name, (stat.x, stat.y), size=name_size, c="black")
+                ax.annotate(stat.name, (stat.x, stat.y),
+                            size=name_size, c="black")
             for n_stat_name in self._stations[station_name].neighbours:
                 n_stat = self._stations[n_stat_name]
                 ax.plot((stat.x, n_stat.x), (stat.y, n_stat.y), c="black")
                 x_pos = stat.x - (stat.x - n_stat.x) / 2
                 y_pos = stat.y - (stat.y - n_stat.y) / 2
                 dist = round(stat.neighbours[n_stat_name], 3)
-                ax.annotate(str(dist), (x_pos, y_pos), size=name_size + 3, c="black")
-
+                ax.annotate(str(dist), (x_pos, y_pos),
+                            size=name_size + 3, c="black")
         plt.show()
 
 
 # NOTE: We should really run tests on all this stuff
+# NOTE: im bein' sewious guys
