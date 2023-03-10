@@ -5,6 +5,8 @@ description
 from __future__ import annotations
 from math import sqrt
 import random
+import json
+import matplotlib.pyplot as plt
 # from typing import Optional, Any
 
 
@@ -119,7 +121,31 @@ class TransitSystem:
         Implementation notes:
           - TODO: Gursi
         """
-        pass
+        f = open(file_path, "r")
+        dataset = json.load(f)
+        for line_stations in dataset.values():
+            station_iter = iter(line_stations.keys())
+            prev_station_name = next(station_iter)
+            if prev_station_name not in self._stations:
+                station_obj = _Station(
+                        name = prev_station_name,
+                        x = line_stations[prev_station_name]["x"],
+                        y = line_stations[prev_station_name]["y"]
+                        )
+                self.add_station(station_obj)
+
+            for station_name in station_iter:
+                if station_name not in self._stations:
+                    station_obj = _Station(
+                            name = station_name,
+                            x = line_stations[station_name]["x"],
+                            y = line_stations[station_name]["y"]
+                            )
+                    self.add_station(station_obj)
+                self.add_edge(station_name, prev_station_name)
+                prev_station_name = station_name
+        f.close()
+
 
     def add_station(self, station: _Station) -> None:
         """Add _Station object <station> to this graph.
@@ -215,6 +241,28 @@ class TransitSystem:
         """
         starting_station = random.choice(self._stations.values())
         return starting_station.get_total_edge_length(set())
+
+    def temporary_render(
+            self,
+            name_size: int = 4,
+            figsize: tuple[int, int] = (20, 10),
+            show_name: bool = True
+            ):
+        fig, ax = plt.subplots(figsize=figsize)
+        for station_name in self._stations:
+            stat = self._stations[station_name]
+            ax.scatter(stat.x, stat.y, c="black")
+            if show_name:
+                ax.annotate(stat.name, (stat.x, stat.y), size=name_size, c="black")
+            for n_stat_name in self._stations[station_name].neighbours:
+                n_stat = self._stations[n_stat_name]
+                ax.plot((stat.x, n_stat.x), (stat.y, n_stat.y), c="black")
+                x_pos = stat.x - (stat.x - n_stat.x) / 2
+                y_pos = stat.y - (stat.y - n_stat.y) / 2
+                dist = round(stat.neighbours[n_stat_name], 3)
+                ax.annotate(str(dist), (x_pos, y_pos), size=name_size + 3, c="black")
+
+        plt.show()
 
 
 # NOTE: We should really run tests on all this stuff
