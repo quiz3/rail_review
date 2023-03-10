@@ -2,7 +2,7 @@
 An algorithm to rank the transit systems of different cities.
 
 ## Visualizations
-![Singapore](dataset/visualizations/singapore.png)
+![Singapore](dataset/visualizations/singapore.png "Singapore")
 ![Delhi](dataset/visualizations/delhi.png)
 ![London](dataset/visualizations/london.png)
 ![Seoul](dataset/visualizations/seoul.png)
