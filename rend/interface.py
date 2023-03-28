@@ -173,5 +173,5 @@ def interface_runner():
 
 
 # TODO, improve button design, add colors
- if __name__ == '__main__':
-     interface_runner()
+if __name__ == '__main__':
+    interface_runner()
