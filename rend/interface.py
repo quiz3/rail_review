@@ -3,6 +3,7 @@ from dataset import dataset
 
 POSSIBLE_IDS = ['delhi', 'london', 'seoul', 'singapore', 'tokyo', 'toronto']
 X_PADDING, Y_PADDING = 25, 25
+SCREEN_X, SCREEN_Y = 1250, 900
 
 
 class interface:
@@ -18,8 +19,8 @@ class interface:
         self.station2 = ''
         self.calcdist = []
 
-    def onHover(self, scrn, pos, ln):
-        font = pygame.font.Font('freesansbold.ttf', 16)
+    def onHover(self, scrn, pos, ln, multi=2):
+        font = pygame.font.Font('freesansbold.ttf', 8*multi)
         text = font.render(ln, True, (255, 255, 255), (0, 0, 0))
 
         textRect = text.get_rect()
@@ -52,6 +53,7 @@ class interface:
 
     def drawDataset(self, m1clicked):
         mouse = pygame.mouse.get_pos()
+        hovered = None
 
         for line_name in self.ds.loaded:
             line_data = self.ds.loaded[line_name]
@@ -63,7 +65,8 @@ class interface:
                                      (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 4, 4))
 
             if rect1.collidepoint(mouse):
-                self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING), line_name)
+                hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name)
+                # self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name)
 
                 if m1clicked:
                     if self.station1 == '':
@@ -76,6 +79,8 @@ class interface:
                         self.station1 = line_name
                         self.station2 = ''
                         self.calcdist = []
+            else:
+                self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name, 1)
 
             for station_name in station_names[1:]:
                 x, y = line_data[station_name]["x"], line_data[station_name]["y"]
@@ -84,8 +89,10 @@ class interface:
 
                 rect2 = pygame.draw.rect(self.screen, self.ds.cmap[line_name],
                                          (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 4, 4))
+
                 if rect2.collidepoint(mouse):
-                    self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING), station_name)
+                    hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name)
+                    # self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name)
 
                     if m1clicked:
                         if self.station1 == '':
@@ -98,6 +105,8 @@ class interface:
                             self.station1 = station_name
                             self.station2 = ''
                             self.calcdist = []
+                else:
+                    self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name, 1)
 
                 col = self.ds.cmap[line_name]
                 if station_name in self.calcdist:
@@ -108,13 +117,15 @@ class interface:
                                  (self.scale_x(prev_x) + X_PADDING, self.scale_y(prev_y) + Y_PADDING))
 
                 prev_station_name = station_name
+        if hovered is not None:
+            self.onHover(*hovered)
 
     def addButton(self, txt, pos):
         smallfont = pygame.font.SysFont('Corbel', 35)
-        text = smallfont.render(txt, True, (255, 0, 0))
+        text = smallfont.render(txt, True, (255, 0, 0), (0, 255, 0))
 
-        rect2 = pygame.draw.rect(self.screen, (0, 255, 0), [pos[0], pos[1], 140, 40])
-        self.screen.blit(text, (pos[0] + 50 - text.get_width()/2, pos[1] + text.get_height() / 2))
+        rect2 = pygame.draw.rect(self.screen, (0, 255, 0), [pos[0] + 45, pos[1] - 10, text.get_width() + 10, 40])
+        self.screen.blit(text, (pos[0] + 50, pos[1]))
 
         return rect2
 
@@ -123,7 +134,7 @@ class interface:
 
         self.running = True
         pygame.init()
-        self.screen = pygame.display.set_mode((1250, 750))
+        self.screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
         clock = pygame.time.Clock()
         dt = 0
 
@@ -143,23 +154,22 @@ class interface:
 
             dsRects = []
 
-            initial_position = (750, 100)
+            initial_position = (50, 750)
+            prev_margins = []
             for i in range(len(POSSIBLE_IDS)):
                 buttonText = POSSIBLE_IDS[i]
-                button = self.addButton(buttonText, (initial_position[0], initial_position[1] + i * 45))
 
+                print(sum(prev_margins))
+                button = self.addButton(buttonText, (initial_position[0] + sum(prev_margins), initial_position[1]))
+
+                prev_margins.append(button.width + 10)
                 dsRects.append(button)
 
                 if m1clicked and button.collidepoint(mouse):
                     self.ds.load_dataset('./dataset/dataset/' + str.lower(buttonText) + '.json')
 
-            sta1 = self.addButton('Station 1: ' + self.station1, (750, 400))
-            sta2 = self.addButton('Station 2: ' + self.station2, (initial_position[0], 445))
-
-            # pygame.display.flip()
-            # keys = pygame.key.get_pressed()
-            # if keys[pygame.K_w]:
-            #     player_pos.y -= 300 * dt
+            sta1 = self.addButton('Station 1: ' + self.station1, (50, 795))
+            sta2 = self.addButton('Station 2: ' + self.station2, (50, 840))
 
             pygame.display.update()
             dt = clock.tick(60) / 1000
