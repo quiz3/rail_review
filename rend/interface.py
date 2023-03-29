@@ -37,11 +37,11 @@ class interface:
 
     def scale_x(self, num):
         min_x, max_x = self.get_xrange()
-        return (num - min_x)/(max_x - min_x) * 700
+        return ((num - min_x) / (max_x - min_x) * 1200)
 
     def scale_y(self, num):
         min_y, max_y = self.get_yrange()
-        return (num - min_y)/(max_y - min_y) * 700
+        return (num - min_y) / (max_y - min_y) * (-700) + 700
 
     def probe_distcalc(self):
         # TODO, waiting for the alg and what it returns, but the rest should follow smoothly
@@ -173,5 +173,5 @@ def interface_runner():
 
 
 # TODO, improve button design, add colors
-# if __name__ == '__main__':
-#     interface_runner()
+if __name__ == '__main__':
+    interface_runner()
