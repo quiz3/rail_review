@@ -6,6 +6,7 @@ TODO: file description
 """
 from __future__ import annotations
 from math import sqrt
+import math
 import json
 import matplotlib.pyplot as plt
 
@@ -107,6 +108,7 @@ class TransitSystem:
         """..."""
         self.name = name
         self._stations = {}
+        self._station_to_name = {}
 
     def __contains__(self, station: str | _Station) -> bool:
         """Return whether station is in self.
@@ -149,6 +151,7 @@ class TransitSystem:
                 self.add_edge(station_name, prev_station_name)
                 prev_station_name = station_name
         f.close()
+        self._station_to_name = {val: key for val, key in self._stations.items()}
 
     def add_station(self, station: _Station) -> None:
         """Add _Station object <station> to this graph.
@@ -214,7 +217,7 @@ class TransitSystem:
 
         return path_length_so_far
 
-    def find_shortest_path(self, station1: str, station2: str) -> list[_Station]:
+    def find_shortest_path(self, start_station: str, dest_station: str) -> list[_Station]:
         """Return the shortest path connecting station1 and station2 in the graph.
 
         Preconditions:
