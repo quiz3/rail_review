@@ -45,6 +45,14 @@ class _Station:
         self.neighbours = {}
         self.x = x
         self.y = y
+    
+    def __hash__(self) -> None:
+        return hash(self.name)
+    
+    def __eq__(self, other_station: _Station) -> bool:
+        """Define equality checker.
+        """
+        return self.__class__ == other_station.__class__ and self.name == other_station.name
 
     def get_edge_length_to(self, other_station: _Station) -> float:
         """Return the length of the edge from self to other_station.
@@ -152,6 +160,14 @@ class TransitSystem:
                 prev_station_name = station_name
         f.close()
         self._station_to_name = {val: key for val, key in self._stations.items()}
+    
+    def system_to_dict(self) -> dict[str, dict[str, float]]:
+        """Convert TransitSytem into dictionary useable by Dijkstra's algrithm.
+
+        Implementation notes:
+          - TODO: Stephen and Ricky
+        """
+        ...
 
     def add_station(self, station: _Station) -> None:
         """Add _Station object <station> to this graph.
@@ -234,6 +250,8 @@ class TransitSystem:
             shortest_distance[self._stations[station]] = math.inf
         shortest_distance[self._stations[start_station]] = 0
 
+        # remove first station from unvisited stations
+
         while unvisited_stations != {}:
             min_distance_station = None
 
@@ -242,12 +260,14 @@ class TransitSystem:
                     min_distance_station = self._stations[station]
                 elif shortest_distance[self._stations[station]] < shortest_distance[min_distance_station]:
                     min_distance_station = self._stations[station]
+                else:  # <station> not the closest neighbour
+                    pass
 
-            possible_paths = min_distance_station.neighbours.items()
+            possible_paths = list(min_distance_station.neighbours.items())
 
             for neighbour, dist in possible_paths:
                 if dist + shortest_distance[min_distance_station] < shortest_distance[self._stations[neighbour]]:
-                    shortest_distance[self._stations[neighbour]] = dist + shortest_distance[min_distance_station]
+                    shortest_distance[self._stations[neighbour]] = dist + shortest_distance[min_distance_station]  # shouldn't be infinity
                     track_prev_station[self._stations[neighbour]] = min_distance_station
 
             unvisited_stations.pop(self._station_to_name[min_distance_station])
