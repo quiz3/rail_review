@@ -225,7 +225,41 @@ class TransitSystem:
           - TODO: Ricky
           - Use Dijkstra's algorithm
         """
-        pass
+        shortest_dist = {}
+        visited_stations = {}
+        unvisited_stations = self._stations
+        path = []
+        curr_station = self._stations[start_station]
+
+        for station in unvisited_stations:
+            shortest_dist[station] = math.inf
+
+        shortest_dist[self._stations[start_station]] = 0
+
+        while unvisited_stations:
+            min_distance_station = None
+
+            for station in unvisited_stations:
+                if min_distance_station is None:
+                    min_distance_station = station
+                elif shortest_dist[station] < shortest_dist[min_distance_station]:
+                    min_distance_station = station
+
+            possible_paths = self._stations[min_distance_station].neighbours
+            for neighbour in possible_paths:
+                if curr_station.neighbours[neighbour] + shortest_dist[min_distance_station] < shortest_dist[neighbour]:
+                    shortest_dist[neighbour] = curr_station.neighbours[neighbour] + shortest_dist[min_distance_station]
+                    visited_stations[neighbour] = min_distance_station
+
+            unvisited_stations.pop(min_distance_station)
+
+        current_station = self._stations[dest_station]
+        while current_station != self._stations[start_station]:
+            path.insert(0, current_station)
+            current_station = visited_stations[current_station]
+
+        if shortest_dist[dest_station] != math.inf:
+            return path
 
     def get_total_edge_length(self) -> float:
         """Return the total edge length of this graph.
