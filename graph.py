@@ -167,7 +167,15 @@ class TransitSystem:
         Implementation notes:
           - TODO: Stephen and Ricky
         """
-        ...
+        # Initialize accumulator dictionary
+        system_dict = {}
+
+        # Add information for each station to system_dict in required form for Dijkstra's algorithm
+        for station in self._stations.values():
+            # station.neighbours already formatted as required
+            system_dict[station.name] = station.neighbours
+        
+        return system_dict
 
     def add_station(self, station: _Station) -> None:
         """Add _Station object <station> to this graph.
