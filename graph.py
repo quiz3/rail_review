@@ -46,7 +46,7 @@ class _Station:
         self.x = x
         self.y = y
     
-    def __hash__(self) -> None:
+    def __hash__(self) -> int:
         return hash(self.name)
     
     def __eq__(self, other_station: _Station) -> bool:
