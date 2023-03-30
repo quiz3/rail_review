@@ -1,26 +1,22 @@
-"""Rail Review!
-
-CSC111 Winter 2023 Course Project
-
-TODO: file description
+"""CSC111 Title....
+description
 """
 from __future__ import annotations
-from math import sqrt
+
 import math
-import json
-import matplotlib.pyplot as plt
+from math import sqrt
+import random
+# from typing import Optional, Any
 
 
 class _Station:
     """A train station in a transit system.
-
     Instance Attributes:
       - name: the name of the train station
-      - neighbours: a dict of the stations one stop away from self, mapping 
+      - neighbours: a dict of the stations one stop away from self, mapping
         station name to the Euclidean distance from the station to self
       - x: the x-position of the train station on a Euclidean plane
       - y: the y-position of the train station on a Euclidean plane
-
     Representation Invariants:
       - name != ''
     """
@@ -31,12 +27,9 @@ class _Station:
 
     def __init__(self, name: str, x: float, y: float) -> None:
         """Initialize this _Station object.
-
         The object will have the given name and x- and y-coordinates.
-
         Preconditions:
           - name != ''
-
         Implementation notes:
           - self.neighbours is initialised as an empty dict, later mutated
             by TransitSystem methods to contain edges
@@ -48,7 +41,6 @@ class _Station:
 
     def get_edge_length_to(self, other_station: _Station) -> float:
         """Return the length of the edge from self to other_station.
-
         Preconditions:
           - self and other_station in same transit system
           - self.name != other_station.name
@@ -62,15 +54,13 @@ class _Station:
         return sqrt(x_diff**2 + y_diff**2)
 
     def get_total_edge_length(self, visited: set[str]) -> float:
-        """Get total edge length of the graph this station is part of WITHOUT 
+        """Get total edge length of the graph this station is part of WITHOUT
         including edges that connect to stations (whose names are) in visited.
-
         Preconditions:
           - self.name not in visited
           - all neighbouring stations are in the same transit system as self
-
         Implementation notes:
-          - initially call to this method made by 
+          - initially call to this method made by
             get_total_edge_length TransitSystem method
           - TODO: Stephen
         """
@@ -90,14 +80,9 @@ class _Station:
 
 class TransitSystem:
     """Description... it's just a normal graph bro
-
-    Instance Attributes:
-      - name: the name of the transit system's city
-
     Representation Invariants:
       - self is a connected graph
     """
-    name: str
     # Private Instance Attributes:
     #     - _stations:
     #         A collection of the stations contained in this graph.
@@ -112,7 +97,6 @@ class TransitSystem:
 
     def __contains__(self, station: str | _Station) -> bool:
         """Return whether station is in self.
-
         Implementation notes:
           - if station is a str object, return whether station is in self._stations
           - if station is a _Station object, return whether station.name is in self._stations
@@ -124,7 +108,6 @@ class TransitSystem:
 
     def load_from_json(self, file_path: str) -> None:
         """Load TransitSystem object from file_path.
-
         Implementation notes:
           - Open file without using with-block to reduce number of nested indentations
         """
@@ -155,7 +138,6 @@ class TransitSystem:
 
     def add_station(self, station: _Station) -> None:
         """Add _Station object <station> to this graph.
-
         Implementation notes:
           - do not raise an error when called on a station that is already in self
         """
@@ -166,11 +148,9 @@ class TransitSystem:
 
     def add_edge(self, station1: str, station2: str) -> None:
         """Add an edge joining station1 and station2 in this graph.
-
         Preconditions:
           - station1 in self._stations
           - station2 in self._stations
-
         Implementation notes:
           - it's fine if an edge already exists between the stations
         """
@@ -187,7 +167,6 @@ class TransitSystem:
 
     def get_edge_length(self, station1: str, station2: str) -> float:
         """Return the length of the edge connecting station1 and station2 in this graph.
-
         Preconditions:
           - station1 in self
           - station2 in self
@@ -205,7 +184,7 @@ class TransitSystem:
         return sqrt(x_diff**2 + y_diff**2)
 
     def get_path_length(self, path: list[str]) -> float:
-        """Return the length of the path formed by the stations in <path> 
+        """Return the length of the path formed by the stations in <path>
         using Euclidean distance.
         """
         # Initialize path length accumulator
@@ -223,6 +202,7 @@ class TransitSystem:
           - start_station in self._stations
           - dest_station in self._stations
         Implementation notes:
+          - TODO: Ricky
           - Use Dijkstra's algorithm
         """
         shortest_distance = {}
@@ -266,41 +246,14 @@ class TransitSystem:
 
     def get_total_edge_length(self) -> float:
         """Return the total edge length of this graph.
-
-        Implementation notes:
-          - call private _Station method of same name
-          - begin recursive process with first station in self._stations
-        """
-        starting_station = self._stations.values()[0]
-        return starting_station.get_total_edge_length(set())
-
-    def temporary_render(self,
-                         name_size: int = 4,
-                         figsize: tuple[int, int] = (20, 10),
-                         show_name: bool = True) -> None:
-        """Temporary rendering method until Zain makes the real one.
-
         Preconditions:
-          - everything is calm
+          - station names are unique
+          - self is a connected graph  # these are both already implied
+        Implementation notes:
+          - TODO: Stephen
         """
-        fig, ax = plt.subplots(figsize=figsize)
-        ax.set_title(self.name, size=40)
-        for station_name in self._stations:
-            stat = self._stations[station_name]
-            ax.scatter(stat.x, stat.y, c="black")
-            if show_name:
-                ax.annotate(stat.name, (stat.x, stat.y),
-                            size=name_size, c="black")
-            for n_stat_name in self._stations[station_name].neighbours:
-                n_stat = self._stations[n_stat_name]
-                ax.plot((stat.x, n_stat.x), (stat.y, n_stat.y), c="black")
-                x_pos = stat.x - (stat.x - n_stat.x) / 2
-                y_pos = stat.y - (stat.y - n_stat.y) / 2
-                dist = round(stat.neighbours[n_stat_name], 3)
-                ax.annotate(str(dist), (x_pos, y_pos),
-                            size=name_size + 3, c="black")
-        plt.show()
+        starting_station = random.choice(self._stations.values())
+        return starting_station.get_total_edge_length(set())
 
 
 # NOTE: We should really run tests on all this stuff
-# NOTE: im bein' sewious guys
