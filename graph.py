@@ -16,7 +16,7 @@ class _Station:
 
     Instance Attributes:
       - name: the name of the train station
-      - neighbours: a dict of the stations one stop away from self, mapping 
+      - neighbours: a dict of the stations one stop away from self, mapping
         station name to the Euclidean distance from the station to self
       - x: the x-position of the train station on a Euclidean plane
       - y: the y-position of the train station on a Euclidean plane
@@ -45,10 +45,10 @@ class _Station:
         self.neighbours = {}
         self.x = x
         self.y = y
-    
+
     def __hash__(self) -> int:
         return hash(self.name)
-    
+
     def __eq__(self, other_station: _Station) -> bool:
         """Define equality checker.
         """
@@ -70,7 +70,7 @@ class _Station:
         return sqrt(x_diff**2 + y_diff**2)
 
     def get_total_edge_length(self, visited: set[str]) -> float:
-        """Get total edge length of the graph this station is part of WITHOUT 
+        """Get total edge length of the graph this station is part of WITHOUT
         including edges that connect to stations (whose names are) in visited.
 
         Preconditions:
@@ -78,7 +78,7 @@ class _Station:
           - all neighbouring stations are in the same transit system as self
 
         Implementation notes:
-          - initially call to this method made by 
+          - initially call to this method made by
             get_total_edge_length TransitSystem method
           - TODO: Stephen
         """
@@ -160,7 +160,7 @@ class TransitSystem:
                 prev_station_name = station_name
         f.close()
         self._station_to_name = {val: key for val, key in self._stations.items()}
-    
+
     def system_to_dict(self) -> dict[str, dict[str, float]]:
         """Convert TransitSytem into dictionary useable by Dijkstra's algrithm.
 
@@ -174,7 +174,7 @@ class TransitSystem:
         for station in self._stations.values():
             # station.neighbours already formatted as required
             system_dict[station.name] = station.neighbours
-        
+
         return system_dict
 
     def add_station(self, station: _Station) -> None:
@@ -229,7 +229,7 @@ class TransitSystem:
         return sqrt(x_diff**2 + y_diff**2)
 
     def get_path_length(self, path: list[str]) -> float:
-        """Return the length of the path formed by the stations in <path> 
+        """Return the length of the path formed by the stations in <path>
         using Euclidean distance.
         """
         # Initialize path length accumulator
@@ -241,56 +241,51 @@ class TransitSystem:
 
         return path_length_so_far
 
-    def find_shortest_path(self, start_station: str, dest_station: str) -> list[_Station]:
+    def find_shortest_path(self, start_station: str, dest_station: str) -> list[str]:
         """Return the shortest path connecting station1 and station2 in the graph.
         Preconditions:
           - start_station in self._stations
           - dest_station in self._stations
         Implementation notes:
           - Use Dijkstra's algorithm
+          - Returns list of strings
         """
         shortest_distance = {}
         track_prev_station = {}
-        unvisited_stations = self._stations
+        unvisited_stations = self.system_to_dict()
         path = []
 
         for station in unvisited_stations:
-            shortest_distance[self._stations[station]] = math.inf
-        shortest_distance[self._stations[start_station]] = 0
+            shortest_distance[station] = math.inf
+        shortest_distance[start_station] = 0
 
-        # remove first station from unvisited stations
-
-        while unvisited_stations != {}:
+        while unvisited_stations:
             min_distance_station = None
 
             for station in unvisited_stations:
                 if min_distance_station is None:
-                    min_distance_station = self._stations[station]
-                elif shortest_distance[self._stations[station]] < shortest_distance[min_distance_station]:
-                    min_distance_station = self._stations[station]
-                else:  # <station> not the closest neighbour
-                    pass
+                    min_distance_station = station
+                elif shortest_distance[station] < shortest_distance[min_distance_station]:
+                    min_distance_station = station
 
-            possible_paths = list(min_distance_station.neighbours.items())
+            possible_paths = self.system_to_dict()[min_distance_station].items()
 
             for neighbour, dist in possible_paths:
-                if dist + shortest_distance[min_distance_station] < shortest_distance[self._stations[neighbour]]:
-                    shortest_distance[self._stations[neighbour]] = dist + shortest_distance[min_distance_station]  # shouldn't be infinity
-                    track_prev_station[self._stations[neighbour]] = min_distance_station
+                if dist + shortest_distance[min_distance_station] < shortest_distance[neighbour]:
+                    shortest_distance[neighbour] = dist + shortest_distance[min_distance_station]
+                    track_prev_station[neighbour] = min_distance_station
 
-            unvisited_stations.pop(self._station_to_name[min_distance_station])
+            unvisited_stations.pop(min_distance_station)
 
-        curr_station = self._stations[dest_station]
+        curr_station = dest_station
 
-        # Check if Comparison could be made otherwise make string comparison and add _Station using dictionary
-        while curr_station != self._stations[start_station]:
+        while curr_station != start_station:
             path.insert(0, curr_station)
             curr_station = track_prev_station[curr_station]
 
-        path.insert(0, self._stations[start_station])
+        path.insert(0, start_station)
 
-        if shortest_distance[self._stations[dest_station]] != math.inf:
-            return path
+        return path
 
     def get_total_edge_length(self) -> float:
         """Return the total edge length of this graph.
