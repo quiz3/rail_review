@@ -13,14 +13,20 @@ class interface:
     station1: str
     station2: str
     calcdist: list
+    font: str
 
     def __init__(self) -> None:
         self.station1 = ''
         self.station2 = ''
         self.calcdist = []
+        self.font = 'freesansbold'
 
-    def onHover(self, scrn, pos, ln, multi=2):
-        font = pygame.font.Font('freesansbold.ttf', 8*multi)
+    def onHover(self, scrn, pos, ln, multi=3):
+        if '.ttf' in self.font:
+            font = pygame.font.Font(self.font, 8*multi)
+        else:
+            font = pygame.font.SysFont(self.font, 8*multi)
+        # font = pygame.font.Font(self.font + '.ttf', 8*multi)
         text = font.render(ln, True, (255, 255, 255), (0, 0, 0))
 
         textRect = text.get_rect()
@@ -159,13 +165,19 @@ class interface:
             for i in range(len(POSSIBLE_IDS)):
                 buttonText = POSSIBLE_IDS[i]
 
-                print(sum(prev_margins))
                 button = self.addButton(buttonText, (initial_position[0] + sum(prev_margins), initial_position[1]))
 
                 prev_margins.append(button.width + 10)
                 dsRects.append(button)
 
                 if m1clicked and button.collidepoint(mouse):
+                    print(pygame.font.get_fonts())
+                    if buttonText in 'tokyo':
+                        self.font = 'ヒラキノ角コシックw1'
+                    elif buttonText == 'seoul':
+                        self.font = 'NanumSquareNeo-aLt.ttf'
+                    else:
+                        self.font = 'freesansbold'
                     self.ds.load_dataset('./dataset/dataset/' + str.lower(buttonText) + '.json')
 
             sta1 = self.addButton('Station 1: ' + self.station1, (50, 795))
