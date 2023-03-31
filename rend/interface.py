@@ -1,9 +1,20 @@
 import pygame
 from dataset import dataset
 
+from sys import path
+path.insert(1, './')
+
+from graph import TransitSystem
+
 POSSIBLE_IDS = ['delhi', 'london', 'seoul', 'singapore', 'tokyo', 'toronto']
 X_PADDING, Y_PADDING = 25, 25
 SCREEN_X, SCREEN_Y = 1250, 900
+ALL_TS = {}
+
+for id in POSSIBLE_IDS:
+    ts = TransitSystem(id)
+    ts.load_from_json('./dataset/dataset/' + id + '.json')
+    ALL_TS[id] = ts
 
 
 class interface:
@@ -14,12 +25,15 @@ class interface:
     station2: str
     calcdist: list
     font: str
+    ts: TransitSystem
+    drawLabels: bool
 
     def __init__(self) -> None:
         self.station1 = ''
         self.station2 = ''
         self.calcdist = []
         self.font = 'freesansbold'
+        self.drawLabels = True
 
     def onHover(self, scrn, pos, ln, multi=3):
         if '.ttf' in self.font:
@@ -51,11 +65,10 @@ class interface:
         return (num - min_y) / (max_y - min_y) * (-700) + 700
 
     def probe_distcalc(self):
-        # TODO, waiting for the alg and what it returns, but the rest should follow smoothly
+        if self.station1 == '' or self.station2 == '':
+            return
 
-        # im assuming here that i get a list of the station names, so i can change their colors to red
-        # pass
-        self.calcdist = ['Greenwood', 'Coxwell', 'Woodbine']
+        self.calcdist = self.ts.find_shortest_path(self.station1, self.station2)[0]
 
     def drawDataset(self, m1clicked):
         mouse = pygame.mouse.get_pos()
@@ -85,7 +98,7 @@ class interface:
                         self.station1 = line_name
                         self.station2 = ''
                         self.calcdist = []
-            else:
+            elif self.drawLabels:
                 self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name, 1)
 
             for station_name in station_names[1:]:
@@ -111,16 +124,18 @@ class interface:
                             self.station1 = station_name
                             self.station2 = ''
                             self.calcdist = []
-                else:
+                elif self.drawLabels:
                     self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name, 1)
 
                 col = self.ds.cmap[line_name]
-                if station_name in self.calcdist:
+                width = 1
+                if prev_station_name in self.calcdist and station_name in self.calcdist:
                     col = (255, 0, 0)
+                    width = 4
 
                 pygame.draw.line(self.screen, col,
                                  (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING),
-                                 (self.scale_x(prev_x) + X_PADDING, self.scale_y(prev_y) + Y_PADDING))
+                                 (self.scale_x(prev_x) + X_PADDING, self.scale_y(prev_y) + Y_PADDING), width)
 
                 prev_station_name = station_name
         if hovered is not None:
@@ -138,6 +153,7 @@ class interface:
     def start(self):
         self.ds = dataset('./dataset/dataset/toronto.json')
 
+        self.ts = ALL_TS['toronto']
         self.running = True
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
@@ -171,17 +187,24 @@ class interface:
                 dsRects.append(button)
 
                 if m1clicked and button.collidepoint(mouse):
-                    print(pygame.font.get_fonts())
                     if buttonText in 'tokyo':
                         self.font = 'ヒラキノ角コシックw1'
                     elif buttonText == 'seoul':
                         self.font = 'NanumSquareNeo-aLt.ttf'
                     else:
                         self.font = 'freesansbold'
-                    self.ds.load_dataset('./dataset/dataset/' + str.lower(buttonText) + '.json')
 
-            sta1 = self.addButton('Station 1: ' + self.station1, (50, 795))
-            sta2 = self.addButton('Station 2: ' + self.station2, (50, 840))
+                    json_file = './dataset/dataset/' + str.lower(buttonText) + '.json'
+                    self.ds.load_dataset(json_file)
+
+                    self.ts = ALL_TS[str.lower(buttonText)]
+
+            self.addButton('Station 1: ' + self.station1, (50, 795))
+            self.addButton('Station 2: ' + self.station2, (50, 840))
+
+            changeLabels = self.addButton('Draw Labels', (800, 750))
+            if m1clicked and changeLabels.collidepoint(mouse):
+                self.drawLabels = not self.drawLabels
 
             pygame.display.update()
             dt = clock.tick(60) / 1000
