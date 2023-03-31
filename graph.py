@@ -328,11 +328,11 @@ class TransitSystem:
         self.transit_info_dict["total_edge_length"] = total_edge_length
         self.transit_info_dict["transit_score"] = total_distance / total_paths / total_edge_length
 
-    def load_from_cache_dict(self, cache_file_name):
+    def load_from_cache_dict(self, cache_file_name='./cached_transit_stats.json'):
         with open(cache_file_name, "r") as f:
             json_object = json.load(f)
             for d in json_object:
-                if self.name == d["city"]:
+                if self.name == str.lower(d["city"]):
                     self.transit_info_dict = d
                     break
 

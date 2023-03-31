@@ -8,11 +8,16 @@ from graph import TransitSystem
 
 POSSIBLE_IDS = ['delhi', 'london', 'seoul', 'singapore', 'tokyo', 'toronto']
 X_PADDING, Y_PADDING = 25, 25
-SCREEN_X, SCREEN_Y = 1250, 900
+SCREEN_X, SCREEN_Y = 1400, 720
+
+graphAR_X = 1000
+graphAR_Y = (700/1200) * graphAR_X
+
 ALL_TS = {}
 
 for id in POSSIBLE_IDS:
     ts = TransitSystem(id)
+    ts.load_from_cache_dict()
     ts.load_from_json('./dataset/dataset/' + id + '.json')
     ALL_TS[id] = ts
 
@@ -35,7 +40,7 @@ class interface:
         self.font = 'freesansbold'
         self.drawLabels = True
 
-    def onHover(self, scrn, pos, ln, multi=3):
+    def onHover(self, scrn, pos, ln, multi=4):
         if '.ttf' in self.font:
             font = pygame.font.Font(self.font, 8*multi)
         else:
@@ -58,11 +63,11 @@ class interface:
 
     def scale_x(self, num):
         min_x, max_x = self.get_xrange()
-        return ((num - min_x) / (max_x - min_x) * 1200)
+        return ((num - min_x) / (max_x - min_x) * graphAR_X)
 
     def scale_y(self, num):
         min_y, max_y = self.get_yrange()
-        return (num - min_y) / (max_y - min_y) * (-700) + 700
+        return (num - min_y) / (max_y - min_y) * (-graphAR_Y) + graphAR_Y
 
     def probe_distcalc(self):
         if self.station1 == '' or self.station2 == '':
@@ -83,7 +88,7 @@ class interface:
 
             if prev_station_name not in drawn_stations:
                 rect1 = pygame.draw.rect(self.screen, self.ds.cmap[line_name],
-                                        (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 4, 4))
+                                        (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 8, 8))
 
                 if rect1.collidepoint(mouse):
                     hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), prev_station_name)
@@ -101,20 +106,20 @@ class interface:
                             self.station2 = ''
                             self.calcdist = []
                 elif self.drawLabels:
-                    self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), prev_station_name, 1)
+                    self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), prev_station_name, 2)
 
                 drawn_stations.append(prev_station_name)
 
             for station_name in station_names[1:]:
-                # if station_name in drawn_stations:
-                #     continue
+                if station_name in drawn_stations:
+                    continue
                 drawn_stations.append(station_name)
                 x, y = line_data[station_name]["x"], line_data[station_name]["y"]
 
                 prev_x, prev_y = line_data[prev_station_name]["x"], line_data[prev_station_name]["y"]
 
                 rect2 = pygame.draw.rect(self.screen, self.ds.cmap[line_name],
-                                         (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 4, 4))
+                                         (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 8, 8))
 
                 if rect2.collidepoint(mouse):
                     hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name)
@@ -132,7 +137,7 @@ class interface:
                             self.station2 = ''
                             self.calcdist = []
                 elif self.drawLabels:
-                    self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name, 1)
+                    self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name, 2)
 
                 col = self.ds.cmap[line_name]
                 width = 1
@@ -148,11 +153,11 @@ class interface:
         if hovered is not None:
             self.onHover(*hovered)
 
-    def addButton(self, txt, pos):
+    def addButton(self, txt, pos, bg=(0, 255, 0)):
         smallfont = pygame.font.SysFont('Corbel', 35)
-        text = smallfont.render(txt, True, (255, 0, 0), (0, 255, 0))
+        text = smallfont.render(txt, True, (255, 0, 0), bg)
 
-        rect2 = pygame.draw.rect(self.screen, (0, 255, 0), [pos[0] + 45, pos[1] - 10, text.get_width() + 10, 40])
+        rect2 = pygame.draw.rect(self.screen, bg, [pos[0] + 45, pos[1] - 10, text.get_width() + 10, 40])
         self.screen.blit(text, (pos[0] + 50, pos[1]))
 
         return rect2
@@ -183,14 +188,12 @@ class interface:
 
             dsRects = []
 
-            initial_position = (50, 750)
-            prev_margins = []
+            initial_position = (graphAR_X + 25, 50)
             for i in range(len(POSSIBLE_IDS)):
                 buttonText = POSSIBLE_IDS[i]
 
-                button = self.addButton(buttonText, (initial_position[0] + sum(prev_margins), initial_position[1]))
+                button = self.addButton(buttonText, (initial_position[0], initial_position[1] + 45 * i))
 
-                prev_margins.append(button.width + 10)
                 dsRects.append(button)
 
                 if m1clicked and button.collidepoint(mouse):
@@ -206,10 +209,16 @@ class interface:
 
                     self.ts = ALL_TS[str.lower(buttonText)]
 
-            self.addButton('Station 1: ' + self.station1, (50, 795))
-            self.addButton('Station 2: ' + self.station2, (50, 840))
+            initial_position = (graphAR_X + 25, 600)
+            i1 = 0
+            for metric in self.ts.transit_info_dict:
+                self.addButton(metric + ' ' + str(self.ts.transit_info_dict[metric]), (initial_position[0], initial_position[1] - 45 * i1), (255, 255, 255))
+                i1 += 1
 
-            changeLabels = self.addButton('Draw Labels', (800, 750))
+            self.addButton('Station 1: ' + self.station1, (50, SCREEN_Y - 45), (255, 255, 255))
+            self.addButton('Station 2: ' + self.station2, (500, SCREEN_Y - 45), (255, 255, 255))
+
+            changeLabels = self.addButton('Draw Labels', (graphAR_X + 25, SCREEN_Y - 45))
             if m1clicked and changeLabels.collidepoint(mouse):
                 self.drawLabels = not self.drawLabels
 
