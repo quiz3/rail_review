@@ -336,8 +336,6 @@ class TransitSystem:
                     self.transit_info_dict = d
                     break
 
-
-
     def temporary_render(self,
                          name_size: int = 4,
                          figsize: tuple[int, int] = (20, 10),
