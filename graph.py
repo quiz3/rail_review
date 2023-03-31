@@ -2,7 +2,6 @@
 
 CSC111 Winter 2023 Course Project
 
-TODO: file description
 """
 from __future__ import annotations
 from math import sqrt
