@@ -8,7 +8,7 @@ from graph import TransitSystem
 
 POSSIBLE_IDS = ['delhi', 'london', 'seoul', 'singapore', 'tokyo', 'toronto']
 X_PADDING, Y_PADDING = 25, 25
-SCREEN_X, SCREEN_Y = 1400, 720
+SCREEN_X, SCREEN_Y = 1450, 720
 
 graphAR_X = 1000
 graphAR_Y = (700/1200) * graphAR_X
@@ -210,10 +210,16 @@ class interface:
                     self.ts = ALL_TS[str.lower(buttonText)]
 
             initial_position = (graphAR_X + 25, 600)
-            i1 = 0
-            for metric in self.ts.transit_info_dict:
-                self.addButton(metric + ' ' + str(self.ts.transit_info_dict[metric]), (initial_position[0], initial_position[1] - 45 * i1), (255, 255, 255))
-                i1 += 1
+            # i1 = 0
+            # for metric in self.ts.transit_info_dict:
+            #     self.addButton(metric + ' ' + str(self.ts.transit_info_dict[metric]), (initial_position[0], initial_position[1] - 45 * i1), (255, 255, 255))
+            #     i1 += 1
+            self.addButton(f"City - {self.ts.transit_info_dict['city']}", (initial_position[0], initial_position[1] - 45 * 5), (255, 255, 255))
+            self.addButton(f"Transit Score - {round(self.ts.transit_info_dict['transit_score'] * 100, 3)}", (initial_position[0], initial_position[1] - 45 * 4), (255, 255, 255))
+            self.addButton(f"Number of Stations - {self.ts.transit_info_dict['total_num_stations']}", (initial_position[0], initial_position[1] - 45 * 3), (255, 255, 255))
+            self.addButton(f"Total possible paths - {self.ts.transit_info_dict['total_paths']}", (initial_position[0], initial_position[1] - 45 * 2), (255, 255, 255))
+            self.addButton(f"Cumulative distance - {round(self.ts.transit_info_dict['total_distance'], 2)}", (initial_position[0], initial_position[1] - 45 * 1), (255, 255, 255))
+            self.addButton(f"Total edge length - {round(self.ts.transit_info_dict['total_edge_length'], 2)}", (initial_position[0], initial_position[1] - 45 * 0), (255, 255, 255))
 
             self.addButton('Station 1: ' + self.station1, (50, SCREEN_Y - 45), (255, 255, 255))
             self.addButton('Station 2: ' + self.station2, (500, SCREEN_Y - 45), (255, 255, 255))
