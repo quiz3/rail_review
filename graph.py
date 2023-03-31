@@ -117,6 +117,7 @@ class TransitSystem:
         self.name = name
         self._stations = {}
         self._station_to_name = {}
+        self.transit_score = 0
 
     def __contains__(self, station: str | _Station) -> bool:
         """Return whether station is in self.
@@ -209,7 +210,7 @@ class TransitSystem:
         s1.neighbours[station2] = edge_length
         s2.neighbours[station1] = edge_length
 
-    def get_edge_length(self, station1: str, station2: str) -> float:
+    def get_edge_length(self, station1: str | _Station, station2: str | _Station) -> float:
         """Return the length of the edge connecting station1 and station2 in this graph.
 
         Preconditions:
@@ -219,11 +220,13 @@ class TransitSystem:
           - station1 in self._stations[station2].neighbours
           - station2 in self._stations[station1].neighbours
         """
-        s1 = self._stations[station1]  # get _Station object for station1
-        s2 = self._stations[station2]  # get _Station object for station2
+        if isinstance(station1, str):
+            station1 = self._stations[station1]  # get _Station object for station1
+        if isinstance(station2, str):
+            station2 = self._stations[station2]  # get _Station object for station2
 
-        x_diff = s2.x - s1.x  # Calculate delta x
-        y_diff = s2.y - s1.y  # Calculate delta y
+        x_diff = station2.x - station1.x  # Calculate delta x
+        y_diff = station2.y - station1.y  # Calculate delta y
 
         # Compute and return Euclidean distance
         return sqrt(x_diff**2 + y_diff**2)
@@ -241,7 +244,7 @@ class TransitSystem:
 
         return path_length_so_far
 
-    def find_shortest_path(self, start_station: str, dest_station: str) -> list[str]:
+    def find_shortest_path(self, start_station: str, dest_station: str) -> tuple[list[str], float]:
         """Return the shortest path connecting station1 and station2 in the graph.
         Preconditions:
           - start_station in self._stations
@@ -254,6 +257,7 @@ class TransitSystem:
         track_prev_station = {}
         unvisited_stations = self.system_to_dict()
         path = []
+        total_path_distance = 0
 
         for station in unvisited_stations:
             shortest_distance[station] = math.inf
@@ -281,11 +285,12 @@ class TransitSystem:
 
         while curr_station != start_station:
             path.insert(0, curr_station)
+            total_path_distance += self.get_edge_length(curr_station, track_prev_station[curr_station])
             curr_station = track_prev_station[curr_station]
 
         path.insert(0, start_station)
 
-        return path
+        return path, total_path_distance
 
     def get_total_edge_length(self) -> float:
         """Return the total edge length of this graph.
@@ -296,6 +301,20 @@ class TransitSystem:
         """
         starting_station = self._stations.values()[0]
         return starting_station.get_total_edge_length(set())
+
+    def compute_transit_system_score(self) -> None:
+        """
+        Computes an objective score to rank this transit system.
+        This method returns None and the computed score should be stored in self.transit_score.
+        """
+        total_distance = 0
+        for source_station_name in self._stations:
+            for target_station_name in self._stations:
+                if target_station_name != source_station_name:
+                    _, dist = self.find_shortest_path(source_station_name, target_station_name)
+                    total_distance += dist
+        total_edge_length = self.get_total_edge_length()
+        self.transit_score = total_distance / total_edge_length
 
     def temporary_render(self,
                          name_size: int = 4,
