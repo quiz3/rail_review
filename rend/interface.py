@@ -216,6 +216,6 @@ def interface_runner():
     new_inter.start()
 
 
-# TODO, improve button design, add colors
+# TODO, improve button design
 if __name__ == '__main__':
     interface_runner()
