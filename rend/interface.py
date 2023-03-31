@@ -178,16 +178,16 @@ class interface:
                     else:
                         self.font = 'freesansbold'
 
+                    self.station1 = ''
+                    self.station2 = ''
+
                     json_file = './dataset/dataset/' + str.lower(buttonText) + '.json'
                     self.ds.load_dataset(json_file)
 
                     self.ts = ALL_TS[str.lower(buttonText)]
 
             initial_position = (graphAR_X + 25, 600)
-            # i1 = 0
-            # for metric in self.ts.transit_info_dict:
-            #     self.addButton(metric + ' ' + str(self.ts.transit_info_dict[metric]), (initial_position[0], initial_position[1] - 45 * i1), (255, 255, 255))
-            #     i1 += 1
+
             self.addButton(f"City - {self.ts.transit_info_dict['city']}", (initial_position[0], initial_position[1] - 45 * 5), (255, 255, 255))
             self.addButton(f"Transit Score - {round(self.ts.transit_info_dict['transit_score'] * 100, 3)}", (initial_position[0], initial_position[1] - 45 * 4), (255, 255, 255))
             self.addButton(f"Number of Stations - {self.ts.transit_info_dict['total_num_stations']}", (initial_position[0], initial_position[1] - 45 * 3), (255, 255, 255))
