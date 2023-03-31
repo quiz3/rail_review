@@ -6,7 +6,7 @@ path.insert(1, './')
 
 from graph import TransitSystem
 
-POSSIBLE_IDS = ['delhi', 'london', 'seoul', 'singapore', 'tokyo', 'toronto']
+POSSIBLE_IDS = ['delhi', 'seoul', 'singapore', 'tokyo', 'toronto']
 X_PADDING, Y_PADDING = 25, 25
 SCREEN_X, SCREEN_Y = 1450, 720
 
@@ -78,83 +78,57 @@ class interface:
     def drawDataset(self, m1clicked):
         mouse = pygame.mouse.get_pos()
         hovered = None
-        drawn_stations = []
 
-        for line_name in self.ds.loaded:
-            line_data = self.ds.loaded[line_name]
-            station_names = list(line_data.keys())
-            prev_station_name = station_names[0]
-            x, y = line_data[prev_station_name]["x"], line_data[prev_station_name]["y"]
+        all_stations = self.ts.get_stations()
 
-            if prev_station_name not in drawn_stations:
-                rect1 = pygame.draw.rect(self.screen, self.ds.cmap[line_name],
-                                        (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 8, 8))
+        for station_name in self.ts.get_stations():
+            station_info = all_stations[station_name]
+            x, y = station_info.x, station_info.y
+            rect1 = pygame.draw.rect(self.screen, (0, 0, 0),
+                                    (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 8, 8))
 
-                if rect1.collidepoint(mouse):
-                    hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), prev_station_name)
-                    # self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name)
+            if rect1.collidepoint(mouse):
+                hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name)
+                # self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name)
 
-                    if m1clicked:
-                        if self.station1 == '':
-                            self.station1 = prev_station_name
-                            self.probe_distcalc()
-                        elif self.station2 == '':
-                            self.station2 = prev_station_name
-                            self.probe_distcalc()
-                        else:
-                            self.station1 = prev_station_name
-                            self.station2 = ''
-                            self.calcdist = []
-                elif self.drawLabels:
-                    self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), prev_station_name, 2)
+                if m1clicked:
+                    if self.station1 == '':
+                        self.station1 = station_name
+                        self.probe_distcalc()
+                    elif self.station2 == '':
+                        self.station2 = station_name
+                        self.probe_distcalc()
+                    else:
+                        self.station1 = station_name
+                        self.station2 = ''
+                        self.calcdist = []
+            elif self.drawLabels:
+                self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name, 2)
 
-                drawn_stations.append(prev_station_name)
+            for neighbour in station_info.neighbours:
+                neighbour_info = self.ts.get_station_by_name(neighbour)
+                new_x, new_y = neighbour_info.x, neighbour_info.y
 
-            for station_name in station_names[1:]:
-                if station_name in drawn_stations:
-                    continue
-                drawn_stations.append(station_name)
-                x, y = line_data[station_name]["x"], line_data[station_name]["y"]
-
-                prev_x, prev_y = line_data[prev_station_name]["x"], line_data[prev_station_name]["y"]
-
-                rect2 = pygame.draw.rect(self.screen, self.ds.cmap[line_name],
-                                         (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 8, 8))
-
-                if rect2.collidepoint(mouse):
-                    hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name)
-                    # self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name)
-
-                    if m1clicked:
-                        if self.station1 == '':
-                            self.station1 = station_name
-                            self.probe_distcalc()
-                        elif self.station2 == '':
-                            self.station2 = station_name
-                            self.probe_distcalc()
-                        else:
-                            self.station1 = station_name
-                            self.station2 = ''
-                            self.calcdist = []
-                elif self.drawLabels:
-                    self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name, 2)
-
-                col = self.ds.cmap[line_name]
                 width = 1
-                if prev_station_name in self.calcdist and station_name in self.calcdist:
+                col = (0, 0, 0)
+                if neighbour in self.calcdist and station_name in self.calcdist:
                     col = (255, 0, 0)
                     width = 4
 
                 pygame.draw.line(self.screen, col,
                                  (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING),
-                                 (self.scale_x(prev_x) + X_PADDING, self.scale_y(prev_y) + Y_PADDING), width)
-
-                prev_station_name = station_name
+                                 (self.scale_x(new_x) + X_PADDING, self.scale_y(new_y) + Y_PADDING), width)
         if hovered is not None:
             self.onHover(*hovered)
 
-    def addButton(self, txt, pos, bg=(0, 255, 0)):
-        smallfont = pygame.font.SysFont('Corbel', 35)
+    def addButton(self, txt, pos, bg=(0, 255, 0), usefont=False):
+        if usefont:
+            if '.ttf' in self.font:
+                smallfont = pygame.font.Font(self.font, 35)
+            else:
+                smallfont = pygame.font.SysFont(self.font, 35)
+        else:
+            smallfont = pygame.font.SysFont('Corbel', 35)
         text = smallfont.render(txt, True, (255, 0, 0), bg)
 
         rect2 = pygame.draw.rect(self.screen, bg, [pos[0] + 45, pos[1] - 10, text.get_width() + 10, 40])
@@ -221,8 +195,11 @@ class interface:
             self.addButton(f"Cumulative distance - {round(self.ts.transit_info_dict['total_distance'], 2)}", (initial_position[0], initial_position[1] - 45 * 1), (255, 255, 255))
             self.addButton(f"Total edge length - {round(self.ts.transit_info_dict['total_edge_length'], 2)}", (initial_position[0], initial_position[1] - 45 * 0), (255, 255, 255))
 
-            self.addButton('Station 1: ' + self.station1, (50, SCREEN_Y - 45), (255, 255, 255))
-            self.addButton('Station 2: ' + self.station2, (500, SCREEN_Y - 45), (255, 255, 255))
+            sta1 = self.addButton('Station 1: ', (50, SCREEN_Y - 45), (255, 255, 255))
+            sta2 = self.addButton('Station 2: ', (500, SCREEN_Y - 45), (255, 255, 255))
+
+            self.addButton(self.station1, (50 + sta1.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
+            self.addButton(self.station2, (500 + sta2.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
 
             changeLabels = self.addButton('Draw Labels', (graphAR_X + 25, SCREEN_Y - 45))
             if m1clicked and changeLabels.collidepoint(mouse):

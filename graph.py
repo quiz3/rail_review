@@ -163,6 +163,14 @@ class TransitSystem:
         f.close()
         self._station_to_name = {val: key for val, key in self._stations.items()}
 
+    def get_stations(self) -> dict[str, _Station]:
+        return self._stations
+    
+    def get_station_by_name(self, station_name) -> _Station:
+        if station_name not in self._stations:
+            return
+        return self._stations[station_name]
+
     def system_to_dict(self) -> dict[str, dict[str, float]]:
         """Convert TransitSytem into dictionary useable by Dijkstra's algrithm.
 
