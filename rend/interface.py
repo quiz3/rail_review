@@ -42,9 +42,9 @@ class interface:
 
     def onHover(self, scrn, pos, ln, multi=4):
         if '.ttf' in self.font:
-            font = pygame.font.Font(self.font, 8*multi)
+            font = pygame.font.Font(self.font, 6*multi)
         else:
-            font = pygame.font.SysFont(self.font, 8*multi)
+            font = pygame.font.SysFont(self.font, self.font != 'freesansbold' and 6*multi or 8*multi)
         # font = pygame.font.Font(self.font + '.ttf', 8*multi)
         text = font.render(ln, True, (255, 255, 255), (0, 0, 0))
 
@@ -80,12 +80,19 @@ class interface:
         hovered = None
 
         all_stations = self.ts.get_stations()
+        todraw = []
 
         for station_name in self.ts.get_stations():
             station_info = all_stations[station_name]
             x, y = station_info.x, station_info.y
-            rect1 = pygame.draw.rect(self.screen, (0, 0, 0),
-                                    (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 8, 8))
+
+            col = (0, 0, 0)
+
+            rect1 = pygame.draw.rect(self.screen, col,
+                                    (self.scale_x(x) + X_PADDING - 2, self.scale_y(y) + Y_PADDING - 2, 8, 8))
+
+            if station_name == self.station1 or station_name == self.station2:
+                todraw.append((self.scale_x(x) + X_PADDING - 6, self.scale_y(y) + Y_PADDING - 6, 16, 16))
 
             if rect1.collidepoint(mouse):
                 hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name)
@@ -118,15 +125,20 @@ class interface:
                 pygame.draw.line(self.screen, col,
                                  (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING),
                                  (self.scale_x(new_x) + X_PADDING, self.scale_y(new_y) + Y_PADDING), width)
+
+        for coord in todraw:
+            pygame.draw.rect(self.screen, (0, 0, 255), coord)
+            pygame.draw.rect(self.screen, (255, 255, 255), (coord[0] + 4, coord[1] + 4, coord[2]/2, coord[3]/2))
+
         if hovered is not None:
             self.onHover(*hovered)
 
     def addButton(self, txt, pos, bg=(0, 255, 0), usefont=False):
         if usefont:
             if '.ttf' in self.font:
-                smallfont = pygame.font.Font(self.font, 35)
+                smallfont = pygame.font.Font(self.font, 20)
             else:
-                smallfont = pygame.font.SysFont(self.font, 35)
+                smallfont = pygame.font.SysFont(self.font, self.font != 'freesansbold' and 20 or 35)
         else:
             smallfont = pygame.font.SysFont('Corbel', 35)
         text = smallfont.render(txt, True, (255, 0, 0), bg)
@@ -180,6 +192,7 @@ class interface:
 
                     self.station1 = ''
                     self.station2 = ''
+                    self.calcdist = []
 
                     json_file = './dataset/dataset/' + str.lower(buttonText) + '.json'
                     self.ds.load_dataset(json_file)
@@ -195,11 +208,11 @@ class interface:
             self.addButton(f"Cumulative distance - {round(self.ts.transit_info_dict['total_distance'], 2)}", (initial_position[0], initial_position[1] - 45 * 1), (255, 255, 255))
             self.addButton(f"Total edge length - {round(self.ts.transit_info_dict['total_edge_length'], 2)}", (initial_position[0], initial_position[1] - 45 * 0), (255, 255, 255))
 
-            sta1 = self.addButton('Station 1: ', (50, SCREEN_Y - 45), (255, 255, 255))
-            sta2 = self.addButton('Station 2: ', (500, SCREEN_Y - 45), (255, 255, 255))
+            sta1 = self.addButton('Station 1: ', (0, SCREEN_Y - 45), (255, 255, 255))
+            sta2 = self.addButton('Station 2: ', (450, SCREEN_Y - 45), (255, 255, 255))
 
-            self.addButton(self.station1, (50 + sta1.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
-            self.addButton(self.station2, (500 + sta2.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
+            self.addButton(self.station1, (0 + sta1.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
+            self.addButton(self.station2, (450 + sta2.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
 
             changeLabels = self.addButton('Draw Labels', (graphAR_X + 25, SCREEN_Y - 45))
             if m1clicked and changeLabels.collidepoint(mouse):
