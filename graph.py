@@ -9,6 +9,7 @@ from math import sqrt
 import math
 import json
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
 class _Station:
@@ -69,7 +70,7 @@ class _Station:
         # Compute and return Euclidean distance between stations
         return sqrt(x_diff**2 + y_diff**2)
 
-    def get_total_edge_length(self, visited: set[str]) -> float:
+    def get_total_edge_length(self, visited: set[str], station_dict: dict[str, _Station]) -> float:
         """Get total edge length of the graph this station is part of WITHOUT
         including edges that connect to stations (whose names are) in visited.
 
@@ -90,8 +91,8 @@ class _Station:
 
         for u in self.neighbours:
             if u not in visited:
-                edge_length_so_far += self.get_edge_length_to(u)
-                edge_len_so_far += u.get_total_edge_length(visited)
+                edge_len_so_far += self.get_edge_length_to(station_dict[u])
+                edge_len_so_far += station_dict[u].get_total_edge_length(visited, station_dict)
 
         return edge_len_so_far
 
@@ -117,7 +118,7 @@ class TransitSystem:
         self.name = name
         self._stations = {}
         self._station_to_name = {}
-        self.transit_score = 0
+        self.transit_info_dict = {}
 
     def __contains__(self, station: str | _Station) -> bool:
         """Return whether station is in self.
@@ -299,8 +300,8 @@ class TransitSystem:
           - call private _Station method of same name
           - begin recursive process with first station in self._stations
         """
-        starting_station = self._stations.values()[0]
-        return starting_station.get_total_edge_length(set())
+        starting_station = list(self._stations.values())[0]
+        return starting_station.get_total_edge_length(set(), self._stations)
 
     def compute_transit_system_score(self) -> None:
         """
@@ -308,13 +309,24 @@ class TransitSystem:
         This method returns None and the computed score should be stored in self.transit_score.
         """
         total_distance = 0
-        for source_station_name in self._stations:
+        total_paths = int(len(self._stations) * (len(self._stations) - 1) / 2)
+        computed_pairs = []
+        loop = tqdm(enumerate(self._stations), total=len(self._stations), leave=False, position=0, bar_format='{l_bar}{bar:20}{r_bar}{bar:-20b}')
+        for i, source_station_name in loop:
             for target_station_name in self._stations:
-                if target_station_name != source_station_name:
+                already_checked = ((source_station_name, target_station_name) in computed_pairs) or ((target_station_name, source_station_name) in computed_pairs) 
+                if target_station_name != source_station_name and not(already_checked):
                     _, dist = self.find_shortest_path(source_station_name, target_station_name)
                     total_distance += dist
+                    computed_pairs.append((source_station_name, target_station_name))
         total_edge_length = self.get_total_edge_length()
-        self.transit_score = total_distance / total_edge_length
+
+
+        self.transit_info_dict["total_num_stations"] = len(self._stations)
+        self.transit_info_dict["total_paths"] = total_paths
+        self.transit_info_dict["total_distance"] = total_distance
+        self.transit_info_dict["total_edge_length"] = total_edge_length
+        self.transit_info_dict["transit_score"] = total_distance / total_paths / total_edge_length
 
     def temporary_render(self,
                          name_size: int = 4,
