@@ -73,6 +73,7 @@ class interface:
     def drawDataset(self, m1clicked):
         mouse = pygame.mouse.get_pos()
         hovered = None
+        drawn_stations = []
 
         for line_name in self.ds.loaded:
             line_data = self.ds.loaded[line_name]
@@ -80,28 +81,34 @@ class interface:
             prev_station_name = station_names[0]
             x, y = line_data[prev_station_name]["x"], line_data[prev_station_name]["y"]
 
-            rect1 = pygame.draw.rect(self.screen, self.ds.cmap[line_name],
-                                     (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 4, 4))
+            if prev_station_name not in drawn_stations:
+                rect1 = pygame.draw.rect(self.screen, self.ds.cmap[line_name],
+                                        (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING, 4, 4))
 
-            if rect1.collidepoint(mouse):
-                hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name)
-                # self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name)
+                if rect1.collidepoint(mouse):
+                    hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), prev_station_name)
+                    # self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name)
 
-                if m1clicked:
-                    if self.station1 == '':
-                        self.station1 = line_name
-                        self.probe_distcalc()
-                    elif self.station2 == '':
-                        self.station2 = line_name
-                        self.probe_distcalc()
-                    else:
-                        self.station1 = line_name
-                        self.station2 = ''
-                        self.calcdist = []
-            elif self.drawLabels:
-                self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name, 1)
+                    if m1clicked:
+                        if self.station1 == '':
+                            self.station1 = prev_station_name
+                            self.probe_distcalc()
+                        elif self.station2 == '':
+                            self.station2 = prev_station_name
+                            self.probe_distcalc()
+                        else:
+                            self.station1 = prev_station_name
+                            self.station2 = ''
+                            self.calcdist = []
+                elif self.drawLabels:
+                    self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), prev_station_name, 1)
+
+                drawn_stations.append(prev_station_name)
 
             for station_name in station_names[1:]:
+                # if station_name in drawn_stations:
+                #     continue
+                drawn_stations.append(station_name)
                 x, y = line_data[station_name]["x"], line_data[station_name]["y"]
 
                 prev_x, prev_y = line_data[prev_station_name]["x"], line_data[prev_station_name]["y"]
