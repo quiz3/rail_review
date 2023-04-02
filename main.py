@@ -22,5 +22,5 @@ def run_quick_demo_test():
 
 
 if __name__ == "__main__":
-    run_quick_demo_test()
+    # run_quick_demo_test()
     interface_runner()
