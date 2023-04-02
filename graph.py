@@ -4,15 +4,19 @@ CSC111 Winter 2023 Course Project
 
 """
 from __future__ import annotations
-from math import sqrt
+from typing import Optional
 import math
 import json
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+# from python_ta.contracts import check_contracts
 
 
+# @check_contracts
 class _Station:
     """A train station in a transit system.
+
+    This class represents a node of a graph represented by the TransitSystem object.
 
     Instance Attributes:
       - name: the name of the train station
@@ -38,7 +42,7 @@ class _Station:
           - name != ''
 
         Implementation notes:
-          - self.neighbours is initialised as an empty dict, later mutated
+          - self.neighbours is initialized as an empty dict, later mutated
             by TransitSystem methods to contain edges
         """
         self.name = name
@@ -47,10 +51,12 @@ class _Station:
         self.y = y
 
     def __hash__(self) -> int:
+        """Return the hash of this station object.
+        """
         return hash(self.name)
 
     def __eq__(self, other_station: _Station) -> bool:
-        """Define equality checker.
+        """Define equality comparison of this object with another _Station object.
         """
         return self.__class__ == other_station.__class__ and self.name == other_station.name
 
@@ -67,7 +73,7 @@ class _Station:
         y_diff = other_station.y - self.y  # Calculate delta y
 
         # Compute and return Euclidean distance between stations
-        return sqrt(x_diff**2 + y_diff**2)
+        return math.sqrt(x_diff**2 + y_diff**2)
 
     def get_total_edge_length(self, visited: set[str], station_dict: dict[str, _Station]) -> float:
         """Get total edge length of the graph this station is part of WITHOUT
@@ -80,7 +86,6 @@ class _Station:
         Implementation notes:
           - initially call to this method made by
             get_total_edge_length TransitSystem method
-          - TODO: Stephen
         """
         # Add self to set of visited stations
         visited.add(self.name)
@@ -96,27 +101,31 @@ class _Station:
         return edge_len_so_far
 
 
+# @check_contracts
 class TransitSystem:
-    """Description... it's just a normal graph bro
+    """An implementation of the graph ADT whose nodes are train stations.
+    This represents a network of train stations and the tracks connecting them.
+    The train stations are represented by the _Station class.
 
     Instance Attributes:
       - name: the name of the transit system's city
+      - transit_info_dict: mapping containing various pieces of information about the transit system object
 
     Representation Invariants:
       - self is a connected graph
     """
     name: str
+    transit_info_dict: dict
     # Private Instance Attributes:
-    #     - _stations:
-    #         A collection of the stations contained in this graph.
-    #         Maps station name to _Station object.
+    #   - _stations:
+    #       A collection of the stations contained in this graph.
+    #       Maps station name to _Station object.
     _stations: dict[str, _Station]
 
     def __init__(self, name: str) -> None:
-        """..."""
+        """Initialize object representing a transit system."""
         self.name = name
         self._stations = {}
-        self._station_to_name = {}
         self.transit_info_dict = {}
 
     def __contains__(self, station: str | _Station) -> bool:
@@ -126,55 +135,59 @@ class TransitSystem:
           - if station is a str object, return whether station is in self._stations
           - if station is a _Station object, return whether station.name is in self._stations
         """
-        if isinstance(station, _Station):
+        if isinstance(station, _Station):  # <station> is a _Station object
             return station.name in self._stations
-        else:  # station is a str object
+        else:  # <station> is a str object
             return station in self._stations
 
     def load_from_json(self, file_path: str) -> None:
-        """Load TransitSystem object from file_path.
-
-        Implementation notes:
-          - Open file without using with-block to reduce number of nested indentations
+        """Load TransitSystem object from json data set at <file_path>.
         """
-        f = open(file_path, "r")
-        dataset = json.load(f)
-        for line_stations in dataset.values():
-            station_iter = iter(line_stations.keys())
-            prev_station_name = next(station_iter)
-            station_obj = _Station(
-                name=prev_station_name,
-                x=line_stations[prev_station_name]["x"],
-                y=line_stations[prev_station_name]["y"]
-            )
-            # will not raise error if station_obj already in transit system
-            self.add_station(station_obj)
+        with open(file_path, "r") as f:
+            dataset = json.load(f)
 
-            for station_name in station_iter:
+            for line_stations in dataset.values():
+                station_iter = iter(line_stations.keys())
+                prev_station_name = next(station_iter)
                 station_obj = _Station(
-                    name=station_name,
-                    x=line_stations[station_name]["x"],
-                    y=line_stations[station_name]["y"]
+                    name=prev_station_name,
+                    x=line_stations[prev_station_name]["x"],
+                    y=line_stations[prev_station_name]["y"]
                 )
-                self.add_station(station_obj)  # no ValueError (see above)
-                self.add_edge(station_name, prev_station_name)
-                prev_station_name = station_name
-        f.close()
-        self._station_to_name = {val: key for val, key in self._stations.items()}
+                # NOTE: will not raise error when station_obj already in transit system
+                self.add_station(station_obj)
+
+                for station_name in station_iter:
+                    station_obj = _Station(
+                        name=station_name,
+                        x=line_stations[station_name]["x"],
+                        y=line_stations[station_name]["y"]
+                    )
+                    self.add_station(station_obj)  # no ValueError (see above)
+                    self.add_edge(station_name, prev_station_name)
+                    prev_station_name = station_name
 
     def get_stations(self) -> dict[str, _Station]:
+        """Return the private instance attribute self._stations.
+        NOTE: required because the mapping self._stations could not otherwise be accessed outside of this class.
+        """
         return self._stations
 
-    def get_station_by_name(self, station_name) -> _Station:
+    def get_station_by_name(self, station_name: str) -> Optional[_Station]:
+        """Return station (value) corresponding to key <station_name> in self._stations.
+        This method is defined as a way of accessing _Station objects stored in a private instance attribute by name.
+
+        Implementation notes:
+          - return None when station_name not in self._stations (do NOT raise error)
+        """
+        # Alternate condition: station_name not in self (thanks to __contains__ method)
         if station_name not in self._stations:
-            return
+            return None
+
         return self._stations[station_name]
 
     def system_to_dict(self) -> dict[str, dict[str, float]]:
-        """Convert TransitSytem into dictionary useable by Dijkstra's algrithm.
-
-        Implementation notes:
-          - TODO: Stephen and Ricky
+        """Convert TransitSystem object into dictionary useable by Dijkstra's algorithm.
         """
         # Initialize accumulator dictionary
         system_dict = {}
@@ -190,7 +203,7 @@ class TransitSystem:
         """Add _Station object <station> to this graph.
 
         Implementation notes:
-          - do not raise an error when called on a station that is already in self
+          - do NOT raise an error when called on a station that is already in self
         """
         if station in self:
             pass
@@ -237,7 +250,7 @@ class TransitSystem:
         y_diff = station2.y - station1.y  # Calculate delta y
 
         # Compute and return Euclidean distance
-        return sqrt(x_diff**2 + y_diff**2)
+        return math.sqrt(x_diff ** 2 + y_diff ** 2)
 
     def get_path_length(self, path: list[str]) -> float:
         """Return the length of the path formed by the stations in <path>
@@ -254,12 +267,14 @@ class TransitSystem:
 
     def find_shortest_path(self, start_station: str, dest_station: str) -> tuple[list[str], float]:
         """Return the shortest path connecting station1 and station2 in the graph.
+
         Preconditions:
           - start_station in self._stations
           - dest_station in self._stations
+
         Implementation notes:
           - Use Dijkstra's algorithm
-          - Returns list of strings
+          - Return list of strings
         """
         shortest_distance = {}
         track_prev_station = {}
@@ -307,27 +322,28 @@ class TransitSystem:
           - call private _Station method of same name
           - begin recursive process with first station in self._stations
         """
-        starting_station = list(self._stations.values())[0]
-        return starting_station.get_total_edge_length(set(), self._stations)
+        starting_station = list(self._stations.values())[0]  # extract first station in transit system
+        return starting_station.get_total_edge_length(set(), self._stations)  # call recursive _Station method
 
     def compute_transit_system_score(self) -> None:
-        """
-        Computes an objective score to rank this transit system.
-        This method returns None and the computed score should be stored in self.transit_score.
+        """Computes an objective score to rank this transit system.
+        This method returns None and the computed score is stored in self.transit_score.
         """
         total_distance = 0
         total_paths = int(len(self._stations) * (len(self._stations) - 1) / 2)
         computed_pairs = []
-        loop = tqdm(enumerate(self._stations), total=len(self._stations), leave=False, position=0, bar_format='{l_bar}{bar:20}{r_bar}{bar:-20b}')
-        for i, source_station_name in loop:
+        loop = tqdm(enumerate(self._stations), total=len(self._stations),
+                    leave=False, position=0, bar_format='{l_bar}{bar:20}{r_bar}{bar:-20b}')
+
+        for _, source_station_name in loop:
             for target_station_name in self._stations:
-                already_checked = ((source_station_name, target_station_name) in computed_pairs) or ((target_station_name, source_station_name) in computed_pairs) 
-                if target_station_name != source_station_name and not(already_checked):
+                already_checked = ((source_station_name, target_station_name) in computed_pairs) or \
+                                  ((target_station_name, source_station_name) in computed_pairs)
+                if target_station_name != source_station_name and not already_checked:
                     _, dist = self.find_shortest_path(source_station_name, target_station_name)
                     total_distance += dist
                     computed_pairs.append((source_station_name, target_station_name))
         total_edge_length = self.get_total_edge_length()
-
 
         self.transit_info_dict["total_num_stations"] = len(self._stations)
         self.transit_info_dict["total_paths"] = total_paths
@@ -335,7 +351,9 @@ class TransitSystem:
         self.transit_info_dict["total_edge_length"] = total_edge_length
         self.transit_info_dict["transit_score"] = total_distance / total_paths / total_edge_length
 
-    def load_from_cache_dict(self, cache_file_name='./assets/cached_transit_stats.json'):
+    def load_from_cache_dict(self, cache_file_name: str = './assets/cached_transit_stats.json') -> None:
+        """Update transit_info_dict attribute by loading data from <cache_file_name>.
+        """
         with open(cache_file_name, "r") as f:
             json_object = json.load(f)
             for d in json_object:
@@ -343,16 +361,10 @@ class TransitSystem:
                     self.transit_info_dict = d
                     break
 
-    def temporary_render(self,
-                         name_size: int = 4,
-                         figsize: tuple[int, int] = (20, 10),
-                         show_name: bool = True) -> None:
-        """Temporary rendering method until Zain makes the real one.
-
-        Preconditions:
-          - everything is calm
+    def temporary_render(self, name_size: int = 4, figsize: tuple[int, int] = (20, 10), show_name: bool = True) -> None:
+        """This is a rendering method for debugging purposes.
         """
-        fig, ax = plt.subplots(figsize=figsize)
+        _, ax = plt.subplots(figsize=figsize)  # NOTE: '_' here usually written as 'fig'
         ax.set_title(self.name, size=40)
         for station_name in self._stations:
             stat = self._stations[station_name]
@@ -371,5 +383,10 @@ class TransitSystem:
         plt.show()
 
 
-# NOTE: We should really run tests on all this stuff
-# NOTE: im bein' sewious guys
+if __name__ == '__main__':
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 120,
+        'extra-imports': ['typing', 'math', 'json', 'matplotlib.pyplot', 'tqdm'],
+        'allowed-io': ['open']
+    })
