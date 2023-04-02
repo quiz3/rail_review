@@ -18,7 +18,7 @@ ALL_TS = {}
 for id in POSSIBLE_IDS:
     ts = TransitSystem(id)
     ts.load_from_cache_dict()
-    ts.load_from_json('./datasets/dataset/' + id + '.json')
+    ts.load_from_json('./dataset/dataset/' + id + '.json')
     ALL_TS[id] = ts
 
 POSSIBLE_IDS.sort(key=lambda x: ALL_TS[x].transit_info_dict['transit_score'])
@@ -142,11 +142,7 @@ class interface:
                 smallfont = pygame.font.SysFont(self.font, self.font != 'freesansbold' and 20 or 35)
         else:
             smallfont = pygame.font.SysFont('Corbel', 35)
-
-        if bg == (66, 133, 244):
-            text = smallfont.render(txt, True, (255, 255, 255), bg)
-        else:
-            text = smallfont.render(txt, True, (0, 0, 0), bg)
+        text = smallfont.render(txt, True, (255, 255, 255), bg)
 
         rect2 = pygame.draw.rect(self.screen, bg, [pos[0] + 45, pos[1] - 10, text.get_width() + 10, 40])
         self.screen.blit(text, (pos[0] + 50, pos[1]))
@@ -154,7 +150,7 @@ class interface:
         return rect2
 
     def start(self):
-        self.ds = dataset('./datasets/dataset/toronto.json')
+        self.ds = dataset('./dataset/dataset/toronto.json')
 
         self.ts = ALL_TS['toronto']
         self.running = True
@@ -199,7 +195,7 @@ class interface:
                     self.station2 = ''
                     self.calcdist = []
 
-                    json_file = './datasets/dataset/' + str.lower(buttonText) + '.json'
+                    json_file = './dataset/dataset/' + str.lower(buttonText) + '.json'
                     self.ds.load_dataset(json_file)
 
                     self.ts = ALL_TS[str.lower(buttonText)]
@@ -233,3 +229,7 @@ def interface_runner():
     new_inter = interface()
     new_inter.start()
 
+
+# TODO, improve button design
+if __name__ == '__main__':
+    interface_runner()
