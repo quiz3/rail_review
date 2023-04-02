@@ -1,29 +1,33 @@
+"""TODO... add module docstring
+"""
 import pygame
 from dataset import dataset
-
-from sys import path
-path.insert(1, './')
-
 from graph import TransitSystem
+from sys import path
+
+path.insert(1, './')
 
 POSSIBLE_IDS = ['delhi', 'seoul', 'singapore', 'tokyo', 'toronto']
 X_PADDING, Y_PADDING = 25, 25
 SCREEN_X, SCREEN_Y = 1450, 720
 
 graphAR_X = 1000
-graphAR_Y = (700/1200) * graphAR_X
+graphAR_Y = (700 / 1200) * graphAR_X
 
 ALL_TS = {}
 
-for id in POSSIBLE_IDS:
-    ts = TransitSystem(id)
+for ID in POSSIBLE_IDS:
+    ts = TransitSystem(ID)
     ts.load_from_cache_dict()
-    ts.load_from_json('./datasets/dataset/' + id + '.json')
-    ALL_TS[id] = ts
+    ts.load_from_json('./datasets/dataset/' + ID + '.json')
+    ALL_TS[ID] = ts
 
 POSSIBLE_IDS.sort(key=lambda x: ALL_TS[x].transit_info_dict['transit_score'])
 
+
 class interface:
+    """TODO: add docstring
+    """
     screen: any
     ds: dataset
     running: bool
@@ -42,10 +46,12 @@ class interface:
         self.drawLabels = True
 
     def onHover(self, scrn, pos, ln, multi=4):
+        """TODO: add docstring
+        """
         if '.ttf' in self.font:
-            font = pygame.font.Font(self.font, 6*multi)
+            font = pygame.font.Font(self.font, 6 * multi)
         else:
-            font = pygame.font.SysFont(self.font, self.font != 'freesansbold' and 6*multi or 8*multi)
+            font = pygame.font.SysFont(self.font, self.font != 'freesansbold' and 6 * multi or 8 * multi)
         # font = pygame.font.Font(self.font + '.ttf', 8*multi)
         text = font.render(ln, True, (255, 255, 255), (0, 0, 0))
 
@@ -54,29 +60,35 @@ class interface:
 
         scrn.blit(text, textRect)
 
-    def get_xrange(self):
+    def get_xrange(self) -> tuple[float, float]:
+        """TODO: add docstring"""
         x_vals = self.ds.x_vals
         return (min(x_vals), max(x_vals))
 
-    def get_yrange(self):
+    def get_yrange(self) -> tuple[float, float]:
+        """TODO: add docstring"""
         y_vals = self.ds.y_vals
         return (min(y_vals), max(y_vals))
 
-    def scale_x(self, num):
+    def scale_x(self, num: float) -> float:
+        """TODO: add docstring"""
         min_x, max_x = self.get_xrange()
-        return ((num - min_x) / (max_x - min_x) * graphAR_X)
+        return (num - min_x) / (max_x - min_x) * graphAR_X
 
-    def scale_y(self, num):
+    def scale_y(self, num: float) -> float:
+        """TODO: add docstring"""
         min_y, max_y = self.get_yrange()
         return (num - min_y) / (max_y - min_y) * (-graphAR_Y) + graphAR_Y
 
     def probe_distcalc(self):
+        """TODO: add docstring"""
         if self.station1 == '' or self.station2 == '':
-            return
+            return None
 
         self.calcdist = self.ts.find_shortest_path(self.station1, self.station2)[0]
 
     def drawDataset(self, m1clicked):
+        """TODO: add docstring"""
         mouse = pygame.mouse.get_pos()
         hovered = None
 
@@ -90,13 +102,13 @@ class interface:
             col = (0, 0, 0)
 
             rect1 = pygame.draw.rect(self.screen, col,
-                                    (self.scale_x(x) + X_PADDING - 2, self.scale_y(y) + Y_PADDING - 2, 8, 8))
+                                     (self.scale_x(x) + X_PADDING - 2, self.scale_y(y) + Y_PADDING - 2, 8, 8))
 
-            if station_name == self.station1 or station_name == self.station2:
+            if station_name in {self.station1, self.station2}:
                 todraw.append((self.scale_x(x) + X_PADDING - 6, self.scale_y(y) + Y_PADDING - 6, 16, 16))
 
             if rect1.collidepoint(mouse):
-                hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name)
+                hovered = (self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING * 1.5), station_name)
                 # self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name)
 
                 if m1clicked:
@@ -111,7 +123,8 @@ class interface:
                         self.station2 = ''
                         self.calcdist = []
             elif self.drawLabels:
-                self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), station_name, 2)
+                self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING * 1.5),
+                             station_name, 2)
 
             for neighbour in station_info.neighbours:
                 neighbour_info = self.ts.get_station_by_name(neighbour)
@@ -129,12 +142,13 @@ class interface:
 
         for coord in todraw:
             pygame.draw.rect(self.screen, (0, 0, 255), coord)
-            pygame.draw.rect(self.screen, (255, 255, 255), (coord[0] + 4, coord[1] + 4, coord[2]/2, coord[3]/2))
+            pygame.draw.rect(self.screen, (255, 255, 255), (coord[0] + 4, coord[1] + 4, coord[2] / 2, coord[3] / 2))
 
         if hovered is not None:
             self.onHover(*hovered)
 
     def addButton(self, txt, pos, bg=(66, 133, 244), usefont=False):
+        """TODO add docstring"""
         if usefont:
             if '.ttf' in self.font:
                 smallfont = pygame.font.Font(self.font, 20)
@@ -154,6 +168,7 @@ class interface:
         return rect2
 
     def start(self):
+        """TODO: add docstring"""
         self.ds = dataset('./datasets/dataset/toronto.json')
 
         self.ts = ALL_TS['toronto']
@@ -183,7 +198,8 @@ class interface:
             for i in range(len(POSSIBLE_IDS)):
                 buttonText = POSSIBLE_IDS[i]
 
-                button = self.addButton(str(i + 1) + '. ' + buttonText, (initial_position[0], initial_position[1] + 45 * i))
+                button = self.addButton(str(i + 1) + '. ' + buttonText,
+                                        (initial_position[0], initial_position[1] + 45 * i))
 
                 dsRects.append(button)
 
@@ -206,12 +222,18 @@ class interface:
 
             initial_position = (graphAR_X + 25, 600)
 
-            self.addButton(f"City - {self.ts.transit_info_dict['city']}", (initial_position[0], initial_position[1] - 45 * 5), (255, 255, 255))
-            self.addButton(f"Transit Score - {round(self.ts.transit_info_dict['transit_score'] * 100, 3)}", (initial_position[0], initial_position[1] - 45 * 4), (255, 255, 255))
-            self.addButton(f"Number of Stations - {self.ts.transit_info_dict['total_num_stations']}", (initial_position[0], initial_position[1] - 45 * 3), (255, 255, 255))
-            self.addButton(f"Total unique pairs - {self.ts.transit_info_dict['total_paths']}", (initial_position[0], initial_position[1] - 45 * 2), (255, 255, 255))
-            self.addButton(f"Cumulative distance - {round(self.ts.transit_info_dict['total_distance'], 2)}", (initial_position[0], initial_position[1] - 45 * 1), (255, 255, 255))
-            self.addButton(f"Total edge length - {round(self.ts.transit_info_dict['total_edge_length'], 2)}", (initial_position[0], initial_position[1] - 45 * 0), (255, 255, 255))
+            self.addButton(f"City - {self.ts.transit_info_dict['city']}",
+                           (initial_position[0], initial_position[1] - 45 * 5), (255, 255, 255))
+            self.addButton(f"Transit Score - {round(self.ts.transit_info_dict['transit_score'] * 100, 3)}",
+                           (initial_position[0], initial_position[1] - 45 * 4), (255, 255, 255))
+            self.addButton(f"Number of Stations - {self.ts.transit_info_dict['total_num_stations']}",
+                           (initial_position[0], initial_position[1] - 45 * 3), (255, 255, 255))
+            self.addButton(f"Total unique pairs - {self.ts.transit_info_dict['total_paths']}",
+                           (initial_position[0], initial_position[1] - 45 * 2), (255, 255, 255))
+            self.addButton(f"Cumulative distance - {round(self.ts.transit_info_dict['total_distance'], 2)}",
+                           (initial_position[0], initial_position[1] - 45 * 1), (255, 255, 255))
+            self.addButton(f"Total edge length - {round(self.ts.transit_info_dict['total_edge_length'], 2)}",
+                           (initial_position[0], initial_position[1] - 45 * 0), (255, 255, 255))
 
             sta1 = self.addButton('Station 1: ', (0, SCREEN_Y - 45), (255, 255, 255))
             sta2 = self.addButton('Station 2: ', (450, SCREEN_Y - 45), (255, 255, 255))
@@ -230,6 +252,18 @@ class interface:
 
 
 def interface_runner():
+    """TODO: add docstring"""
     new_inter = interface()
     new_inter.start()
 
+
+if __name__ == '__main__':
+    import python_ta
+
+    python_ta.check_all(config={
+        'max-line-length': 120,
+        'extra-imports': ['pygame', 'dataset', 'sys', 'graph'],
+        'allowed-io': [],
+        'max-indented': 4,
+        'disable': ['E9992', 'E9997']
+    })
