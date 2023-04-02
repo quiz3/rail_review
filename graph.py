@@ -305,12 +305,20 @@ class TransitSystem:
 
         curr_station = dest_station
 
+        # while curr_station != start_station:
+        #     path.insert(0, curr_station)
+        #     total_path_distance += self.get_edge_length(curr_station, track_prev_station[curr_station])
+        #     curr_station = track_prev_station[curr_station]
+        #
+        # path.insert(0, start_station)
+
         while curr_station != start_station:
-            path.insert(0, curr_station)
+            path.append(curr_station)
             total_path_distance += self.get_edge_length(curr_station, track_prev_station[curr_station])
             curr_station = track_prev_station[curr_station]
 
-        path.insert(0, start_station)
+        path.append(start_station)
+        path.reverse()
 
         return path, total_path_distance
 
