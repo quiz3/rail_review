@@ -34,7 +34,7 @@ class Interface:
         self.font = 'freesansbold'
         self.drawlabels = True
 
-    def onhover(self, pos: tuple[int], ln: str, multi: int = 4) -> None:
+    def onhover(self, pos: tuple[float, float], ln: str, multi: int = 4) -> None:
         """TODO: add docstring
         """
         if '.ttf' in self.font:
@@ -135,7 +135,8 @@ class Interface:
         if hovered is not None:
             self.onhover(*hovered)
 
-    def addbutton(self, txt: str, pos: tuple[int, int], bg: tuple[int, int, int] = (66, 133, 244), usefont: bool = False) -> pygame.Rect:
+    def addbutton(self, txt: str, pos: tuple[int, int],
+                  bg: tuple[int, int, int] = (66, 133, 244), usefont: bool = False) -> pygame.Rect:
         """TODO add docstring"""
         if usefont:
             if '.ttf' in self.font:
@@ -252,11 +253,14 @@ def interface_runner() -> None:
 
 if __name__ == '__main__':
     import python_ta
-
     python_ta.check_all(config={
         'max-line-length': 120,
         'extra-imports': ['pygame', 'dataset', 'graph'],
         'allowed-io': [],
-        'max-indented': 4,
-        'disable': ['E9992', 'E9997', 'E1101']
+        'max-nested': 4,
+        'disable': [
+            'E1101',  # no-member (py-TA failes to properly understand pygame)
+            'R0902',  # too-many-instance-attributes (it's really not too many)
+            'R0914',  # too-many-locals (again, it's really not too many)
+        ]
     })
