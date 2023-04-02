@@ -21,6 +21,7 @@ for id in POSSIBLE_IDS:
     ts.load_from_json('./dataset/dataset/' + id + '.json')
     ALL_TS[id] = ts
 
+POSSIBLE_IDS.sort(key=lambda x: ALL_TS[x].transit_info_dict['transit_score'])
 
 class interface:
     screen: any
@@ -178,7 +179,7 @@ class interface:
             for i in range(len(POSSIBLE_IDS)):
                 buttonText = POSSIBLE_IDS[i]
 
-                button = self.addButton(buttonText, (initial_position[0], initial_position[1] + 45 * i))
+                button = self.addButton(str(i + 1) + '. ' + buttonText, (initial_position[0], initial_position[1] + 45 * i))
 
                 dsRects.append(button)
 
