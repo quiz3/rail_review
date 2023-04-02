@@ -164,7 +164,7 @@ class TransitSystem:
 
     def get_stations(self) -> dict[str, _Station]:
         return self._stations
-    
+
     def get_station_by_name(self, station_name) -> _Station:
         if station_name not in self._stations:
             return

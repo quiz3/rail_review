@@ -100,10 +100,10 @@ class interface:
                 # self.onHover(self.screen, (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING*1.5), line_name)
 
                 if m1clicked:
-                    if self.station1 == '':
+                    if self.station1 == '' and station_name != self.station2:
                         self.station1 = station_name
                         self.probe_distcalc()
-                    elif self.station2 == '':
+                    elif self.station2 == '' and station_name != self.station1:
                         self.station2 = station_name
                         self.probe_distcalc()
                     else:
@@ -209,7 +209,7 @@ class interface:
             self.addButton(f"City - {self.ts.transit_info_dict['city']}", (initial_position[0], initial_position[1] - 45 * 5), (255, 255, 255))
             self.addButton(f"Transit Score - {round(self.ts.transit_info_dict['transit_score'] * 100, 3)}", (initial_position[0], initial_position[1] - 45 * 4), (255, 255, 255))
             self.addButton(f"Number of Stations - {self.ts.transit_info_dict['total_num_stations']}", (initial_position[0], initial_position[1] - 45 * 3), (255, 255, 255))
-            self.addButton(f"Total possible paths - {self.ts.transit_info_dict['total_paths']}", (initial_position[0], initial_position[1] - 45 * 2), (255, 255, 255))
+            self.addButton(f"Total unique pairs - {self.ts.transit_info_dict['total_paths']}", (initial_position[0], initial_position[1] - 45 * 2), (255, 255, 255))
             self.addButton(f"Cumulative distance - {round(self.ts.transit_info_dict['total_distance'], 2)}", (initial_position[0], initial_position[1] - 45 * 1), (255, 255, 255))
             self.addButton(f"Total edge length - {round(self.ts.transit_info_dict['total_edge_length'], 2)}", (initial_position[0], initial_position[1] - 45 * 0), (255, 255, 255))
 
