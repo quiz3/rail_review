@@ -13,7 +13,7 @@ def run_quick_demo_test():
         # shortest_path = test_city.find_shortest_path("Downsview", "Wilson")
         print("-" * 10 + f" {city} " + "-" * 10)
         test_city.compute_transit_system_score()
-        print(f"Total number of stations: {len(test_city._stations)}")
+        print(f"Total number of stations: {len(test_city.get_stations())}")
         # test_city.compute_transit_system_score()
         print(f"Total number of paths: {test_city.transit_info_dict['total_paths']}")
         print(f"Total distance: {test_city.transit_info_dict['total_distance']}")

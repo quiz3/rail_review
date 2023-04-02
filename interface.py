@@ -19,19 +19,16 @@ class Interface:
     """
     screen: any
     ds: dataset
-    running: bool
-    station1: str
-    station2: str
-    calcdist: list
+    stations: list[str, str]
+    calcdist: list[str]
     font: str
     ts: TransitSystem
     drawlabels: bool
 
     def __init__(self) -> None:
-        self.station1 = ''
-        self.station2 = ''
         self.calcdist = []
         self.font = 'freesansbold'
+        self.stations = ['', '']
         self.drawlabels = True
 
     def onhover(self, pos: tuple[float, float], ln: str, multi: int = 4) -> None:
@@ -72,43 +69,41 @@ class Interface:
 
     def probe_distcalc(self) -> None:
         """TODO: add docstring"""
-        if self.station1 == '' or self.station2 == '':
+        if self.stations[0] == '' or self.stations[1] == '':
             return None
 
-        self.calcdist = self.ts.find_shortest_path(self.station1, self.station2)[0]
+        self.calcdist = self.ts.find_shortest_path(self.stations[0], self.stations[1])[0]
         return None
 
     def drawdataset(self, m1clicked: bool) -> None:
         """TODO: add docstring"""
-        mouse = pygame.mouse.get_pos()
         hovered = None
 
-        all_stations = self.ts.get_stations()
         todraw = []
 
         for station_name in self.ts.get_stations():
-            station_info = all_stations[station_name]
+            station_info = self.ts.get_station_by_name(station_name)
             x, y = station_info.x, station_info.y
 
             rect1 = pygame.draw.rect(self.screen, (0, 0, 0),
                                      (self.scale_x(x) + X_PADDING - 2, self.scale_y(y) + Y_PADDING - 2, 8, 8))
 
-            if station_name in {self.station1, self.station2}:
+            if station_name in self.stations:
                 todraw.append((self.scale_x(x) + X_PADDING - 6, self.scale_y(y) + Y_PADDING - 6, 16, 16))
 
-            if rect1.collidepoint(mouse):
+            if rect1.collidepoint(pygame.mouse.get_pos()):
                 hovered = ((self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING * 1.5), station_name)
 
                 if m1clicked:
-                    if self.station1 == '' and station_name != self.station2:
-                        self.station1 = station_name
+                    if self.stations[0] == '' and station_name != self.stations[1]:
+                        self.stations[0] = station_name
                         self.probe_distcalc()
-                    elif self.station2 == '' and station_name != self.station1:
-                        self.station2 = station_name
+                    elif self.stations[1] == '' and station_name != self.stations[0]:
+                        self.stations[1] = station_name
                         self.probe_distcalc()
                     else:
-                        self.station1 = station_name
-                        self.station2 = ''
+                        self.stations[0] = station_name
+                        self.stations[1] = ''
                         self.calcdist = []
             elif self.drawlabels:
                 self.onhover((self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING * 1.5),
@@ -118,15 +113,11 @@ class Interface:
                 neighbour_info = self.ts.get_station_by_name(neighbour)
                 new_x, new_y = neighbour_info.x, neighbour_info.y
 
-                width = 1
-                col = (0, 0, 0)
-                if neighbour in self.calcdist and station_name in self.calcdist:
-                    col = (255, 0, 0)
-                    width = 4
+                is_path = neighbour in self.calcdist and station_name in self.calcdist
 
-                pygame.draw.line(self.screen, col,
+                pygame.draw.line(self.screen, is_path and (255, 0, 0) or (0, 0, 0),
                                  (self.scale_x(x) + X_PADDING, self.scale_y(y) + Y_PADDING),
-                                 (self.scale_x(new_x) + X_PADDING, self.scale_y(new_y) + Y_PADDING), width)
+                                 (self.scale_x(new_x) + X_PADDING, self.scale_y(new_y) + Y_PADDING), is_path and 4 or 1)
 
         for coord in todraw:
             pygame.draw.rect(self.screen, (0, 0, 255), coord)
@@ -161,16 +152,16 @@ class Interface:
         self.ds = dataset('./datasets/dataset/toronto.json')
 
         self.ts = ALL_TS['toronto']
-        self.running = True
+        running = True
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
 
-        while self.running:
+        while running:
             m1clicked = False
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False
+                    running = False
                 elif event.type == pygame.MOUSEBUTTONUP:
                     m1clicked = True
 
@@ -198,8 +189,8 @@ class Interface:
                     else:
                         self.font = 'freesansbold'
 
-                    self.station1 = ''
-                    self.station2 = ''
+                    self.stations[0] = ''
+                    self.stations[1] = ''
                     self.calcdist = []
 
                     json_file = './datasets/dataset/' + str.lower(buttontext) + '.json'
@@ -225,8 +216,8 @@ class Interface:
             sta1 = self.addbutton('Station 1: ', (0, SCREEN_Y - 45), (255, 255, 255))
             sta2 = self.addbutton('Station 2: ', (450, SCREEN_Y - 45), (255, 255, 255))
 
-            self.addbutton(self.station1, (0 + sta1.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
-            self.addbutton(self.station2, (450 + sta2.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
+            self.addbutton(self.stations[0], (0 + sta1.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
+            self.addbutton(self.stations[1], (450 + sta2.width, SCREEN_Y - 45), (255, 255, 255), usefont=True)
 
             changelabels = self.addbutton('Draw Labels', (GRAPHAR_X + 25, SCREEN_Y - 45))
             if m1clicked and changelabels.collidepoint(mouse):
@@ -260,7 +251,7 @@ if __name__ == '__main__':
         'max-nested': 4,
         'disable': [
             'E1101',  # no-member (py-TA failes to properly understand pygame)
-            'R0902',  # too-many-instance-attributes (it's really not too many)
-            'R0914',  # too-many-locals (again, it's really not too many)
+            # 'R0902',  # too-many-instance-attributes (it's really not too many)
+            # 'R0914',  # too-many-locals (again, it's really not too many)
         ]
     })
