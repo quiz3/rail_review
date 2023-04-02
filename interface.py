@@ -15,7 +15,17 @@ ALL_TS = {}
 
 
 class Interface:
-    """TODO: add docstring
+    """Represent a Graphical User Interface (GUI) to display transit system analysis results and to illustrate the
+    layout of the analyzed transit systems and potential paths therein.
+
+    Instance Attributes:
+      - screen: TODO
+      - ds: TODO...
+      - stations: TODO...
+      - calcdist
+      - font
+      - ts
+      - drawlabels
     """
     screen: any
     ds: dataset
@@ -32,7 +42,7 @@ class Interface:
         self.drawlabels = True
 
     def onhover(self, pos: tuple[float, float], ln: str, multi: int = 4) -> None:
-        """TODO: add docstring
+        """Handle event when cursor hovers over a station.
         """
         if '.ttf' in self.font:
             font = pygame.font.Font(self.font, 6 * multi)
@@ -48,27 +58,27 @@ class Interface:
         return None
 
     def get_xrange(self) -> tuple[float, float]:
-        """TODO: add docstring"""
+        """Return lower and upper bounds of station x-values."""
         x_vals = self.ds.x_vals
         return (min(x_vals), max(x_vals))
 
     def get_yrange(self) -> tuple[float, float]:
-        """TODO: add docstring"""
+        """Return lower and upper bounds of station y-values."""
         y_vals = self.ds.y_vals
         return (min(y_vals), max(y_vals))
 
     def scale_x(self, num: float) -> float:
-        """TODO: add docstring"""
+        """Given x-value <num>, return scaled x-value."""
         min_x, max_x = self.get_xrange()
         return (num - min_x) / (max_x - min_x) * GRAPHAR_X
 
     def scale_y(self, num: float) -> float:
-        """TODO: add docstring"""
+        """Given y-value <num>, return scaled y-value."""
         min_y, max_y = self.get_yrange()
         return (num - min_y) / (max_y - min_y) * (-GRAPHAR_Y) + GRAPHAR_Y
 
     def probe_distcalc(self) -> None:
-        """TODO: add docstring"""
+        """Update attribute <calcdist>."""
         if self.stations[0] == '' or self.stations[1] == '':
             return None
 
@@ -76,7 +86,8 @@ class Interface:
         return None
 
     def drawdataset(self, m1clicked: bool) -> None:
-        """TODO: add docstring"""
+        """Draw the transit system <self.ts>.
+        """
         hovered = None
 
         todraw = []
@@ -128,7 +139,11 @@ class Interface:
 
     def addbutton(self, txt: str, pos: tuple[int, int],
                   bg: tuple[int, int, int] = (66, 133, 244), usefont: bool = False) -> pygame.Rect:
-        """TODO add docstring"""
+        """Create button according to given parameters and add it to <self.screen>.
+
+        Implementation notes:
+          - Return the button
+        """
         if usefont:
             if '.ttf' in self.font:
                 smallfont = pygame.font.Font(self.font, 20)
@@ -148,7 +163,8 @@ class Interface:
         return rect2
 
     def start(self) -> None:
-        """TODO: add docstring"""
+        """Draw the GUI to <self.screen> for the first time.
+        """
         self.ds = dataset('./datasets/dataset/toronto.json')
 
         self.ts = ALL_TS['toronto']
@@ -229,7 +245,7 @@ class Interface:
 
 
 def interface_runner() -> None:
-    """TODO: add docstring"""
+    """Run the GUI defined above using our train station data."""
     for ID in POSSIBLE_IDS:
         ts = TransitSystem(ID)
         ts.load_from_cache_dict()
@@ -249,9 +265,5 @@ if __name__ == '__main__':
         'extra-imports': ['pygame', 'dataset', 'graph'],
         'allowed-io': [],
         'max-nested': 4,
-        'disable': [
-            'E1101',  # no-member (py-TA failes to properly understand pygame)
-            # 'R0902',  # too-many-instance-attributes (it's really not too many)
-            # 'R0914',  # too-many-locals (again, it's really not too many)
-        ]
+        'disable': ['no-member']  # aka. E1101 (python-TA fails to properly understand pygame)
     })

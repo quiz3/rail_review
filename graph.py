@@ -1,7 +1,8 @@
-"""Rail Review!
+"""CSC111 Winter 2023 Course Project - Rail Review!
 
-CSC111 Winter 2023 Course Project
-
+- This file contains an implementation of the graph ADT representing a transit system.
+- This file contains the _Station and TransitSystem classes, which correspond to the _Node and Graph ADTs we have looked
+  at during this course.
 """
 from __future__ import annotations
 from typing import Optional
@@ -388,5 +389,5 @@ if __name__ == '__main__':
     python_ta.check_all(config={
         'max-line-length': 120,
         'extra-imports': ['typing', 'math', 'json', 'matplotlib.pyplot', 'tqdm'],
-        'allowed-io': ['open']
+        'allowed-io': ['load_from_json', 'load_from_cache_dict']  # permit data to be loaded in from files
     })

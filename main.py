@@ -24,3 +24,12 @@ def run_quick_demo_test():
 if __name__ == "__main__":
     # run_quick_demo_test()
     interface_runner()
+
+    # Run python-TA checks
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 120,
+        'extra-imports': ['interface', 'graph'],
+        'allowed-io': [],
+        'disable': []
+    })
