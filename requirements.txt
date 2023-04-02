@@ -1,0 +1,8 @@
+# Main libraries
+tqdm~=4.65
+matplotlib~=3.7.1
+pygame~=2.1.2
+
+# Testing and code checking
+python-ta~=2.4.2
+
