@@ -1,4 +1,6 @@
-"""TODO: ...
+"""CSC111 Winter 2023 Course Project - Rail Review!
+
+This file calls interface.interface_runner(), which runs the main feature of our project.
 """
 from interface import interface_runner
 from graph import TransitSystem

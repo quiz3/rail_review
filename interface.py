@@ -1,8 +1,6 @@
 """CSC111 Winter 2023 Course Project - Rail Review!
 
-- This file contains a class representing a graphical user interface (GUI) .
-- This file contains the _Station and TransitSystem classes, which correspond to the _Node and Graph ADTs we have looked
-  at during this course.
+- This file contains a class representing the GUI used to demonstrate our transit system analysis.
 """
 import pygame
 from dataset import Dataset
@@ -249,7 +247,11 @@ class Interface:
 
 
 def interface_runner() -> None:
-    """Run the GUI defined above using our train station data."""
+    """Run the GUI defined above using our train station data.
+
+    This function is the culmination of the work across our project files.
+    It is what we call in main.py to create and update our GUI.
+    """
     for ID in POSSIBLE_IDS:
         ts = TransitSystem(ID)
         ts.load_from_cache_dict()

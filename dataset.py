@@ -47,7 +47,6 @@ class Dataset:
         self.file_path = file_path
         self.cmap = dict(zip(self.loaded, COLORS))
 
-        # TODO, x and y are not actual pos coords
         self.x_vals = [self.loaded[x][y]['x'] for x in self.loaded for y in self.loaded[x]]
         self.y_vals = [self.loaded[x][y]['y'] for x in self.loaded for y in self.loaded[x]]
 
