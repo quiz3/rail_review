@@ -5,7 +5,6 @@
   at during this course.
 """
 import pygame
-from python_ta.contracts import check_contracts
 from dataset import Dataset
 from graph import TransitSystem
 
@@ -19,7 +18,6 @@ GRAPHAR_Y = (700 / 1200) * GRAPHAR_X
 ALL_TS = {}
 
 
-@check_contracts
 class Interface:
     """Represent a Graphical User Interface (GUI) to display transit system analysis results and to illustrate the
     layout of the analyzed transit systems and potential paths therein.
@@ -250,7 +248,6 @@ class Interface:
         pygame.quit()
 
 
-@check_contracts
 def interface_runner() -> None:
     """Run the GUI defined above using our train station data."""
     for ID in POSSIBLE_IDS:
@@ -262,7 +259,6 @@ def interface_runner() -> None:
     POSSIBLE_IDS.sort(key=lambda x: ALL_TS[x].transit_info_dict['transit_score'])
 
     new_inter = Interface()
-    print(type(new_inter.calcdist))
     new_inter.start()
 
 

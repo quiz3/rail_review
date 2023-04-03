@@ -10,10 +10,8 @@ import math
 import json
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-# from python_ta.contracts import check_contracts
 
 
-# @check_contracts
 class _Station:
     """A train station in a transit system.
 
@@ -102,7 +100,6 @@ class _Station:
         return edge_len_so_far
 
 
-# @check_contracts
 class TransitSystem:
     """An implementation of the graph ADT whose nodes are train stations.
     This represents a network of train stations and the tracks connecting them.

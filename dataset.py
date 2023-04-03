@@ -3,7 +3,6 @@
 This file contains the 'Dataset' class, which is used by other files in our project.
 """
 import json
-from python_ta.contracts import check_contracts
 
 COLORS = [(0, 0, 0), (150, 150, 150), (180, 0, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0),
           (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0),
@@ -15,7 +14,6 @@ COLORS = [(0, 0, 0), (150, 150, 150), (180, 0, 0), (0, 180, 0), (0, 180, 0), (0,
           (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0)]
 
 
-@check_contracts
 class Dataset:
     """Class representing a data set (which stores transit-related data).
 

@@ -5,7 +5,7 @@ from graph import TransitSystem
 
 
 def run_quick_demo_test() -> None:
-    """This is only a demo for two cities, some of the others take much longer to run since they have more stations.
+    """This is only a demo for two cities, some others take much longer to run since they have more stations.
     The interface is run from assets/cached_transit_stats.json, which stores the precomputed transit scores
     to save time.
     """
