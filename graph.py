@@ -282,11 +282,11 @@ class TransitSystem:
         track_prev_station = {}
         unvisited_stations = self.system_to_dict()
         path = []
-        total_path_distance = 0
+        total_path_distance = 0.0
 
         for station in unvisited_stations:
             shortest_distance[station] = math.inf
-        shortest_distance[start_station] = 0
+        shortest_distance[start_station] = 0.0
 
         while unvisited_stations:
             min_distance_station = None
