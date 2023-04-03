@@ -267,7 +267,8 @@ class TransitSystem:
         return path_length_so_far
 
     def find_shortest_path(self, start_station: str, dest_station: str) -> tuple[list[str], float]:
-        """Return the shortest path connecting station1 and station2 in the graph.
+        """Return a tuple containing the shortest path connecting station1 and station2 in the graph
+        and the length of this path (in Euclidean distance).
 
         Preconditions:
           - start_station in self._stations
@@ -315,7 +316,7 @@ class TransitSystem:
         path.append(start_station)
         path.reverse()
 
-        return path, total_path_distance
+        return (path, total_path_distance)
 
     def get_total_edge_length(self) -> float:
         """Return the total edge length of this graph.
