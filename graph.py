@@ -114,6 +114,7 @@ class TransitSystem:
 
     Representation Invariants:
       - self is a connected graph
+      - every station name is unique
     """
     name: str
     transit_info_dict: dict
