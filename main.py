@@ -4,7 +4,7 @@ from interface import interface_runner
 from graph import TransitSystem
 
 
-def run_quick_demo_test():
+def run_quick_demo_test() -> None:
     """This is only a demo for two cities, some of the others take much longer to run since they have more stations.
     The interface is run from assets/cached_transit_stats.json, which stores the precomputed transit scores
     to save time.
@@ -33,5 +33,5 @@ if __name__ == "__main__":
     python_ta.check_all(config={
         'max-line-length': 120,
         'extra-imports': ['interface', 'graph'],
-        'allowed-io': []
+        'allowed-io': ['run_quick_demo_test']
     })

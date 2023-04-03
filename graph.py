@@ -316,7 +316,7 @@ class TransitSystem:
         path.append(start_station)
         path.reverse()
 
-        return (path, total_path_distance)
+        return path, total_path_distance
 
     def get_total_edge_length(self) -> float:
         """Return the total edge length of this graph.
@@ -391,5 +391,5 @@ if __name__ == '__main__':
     python_ta.check_all(config={
         'max-line-length': 120,
         'extra-imports': ['typing', 'math', 'json', 'matplotlib.pyplot', 'tqdm'],
-        'allowed-io': ['load_from_json', 'load_from_cache_dict']  # permit data to be loaded in from files
+        'allowed-io': ['TransitSystem.load_from_json', 'TransitSystem.load_from_cache_dict']
     })
