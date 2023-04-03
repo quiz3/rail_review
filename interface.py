@@ -1,7 +1,12 @@
-"""TODO... add module docstring
+"""CSC111 Winter 2023 Course Project - Rail Review!
+
+- This file contains a class representing a graphical user interface (GUI) .
+- This file contains the _Station and TransitSystem classes, which correspond to the _Node and Graph ADTs we have looked
+  at during this course.
 """
 import pygame
-from dataset import dataset
+from python_ta.contracts import check_contracts
+from dataset import Dataset
 from graph import TransitSystem
 
 POSSIBLE_IDS = ['delhi', 'seoul', 'singapore', 'tokyo', 'toronto']
@@ -14,21 +19,22 @@ GRAPHAR_Y = (700 / 1200) * GRAPHAR_X
 ALL_TS = {}
 
 
+@check_contracts
 class Interface:
     """Represent a Graphical User Interface (GUI) to display transit system analysis results and to illustrate the
     layout of the analyzed transit systems and potential paths therein.
 
     Instance Attributes:
-      - screen: TODO
-      - ds: TODO...
-      - stations: TODO...
+      - screen: the screen of a pygame instance
+      - ds: a Dataset object for the current transit system
+      - stations: a list containing the name of two stations
       - calcdist
-      - font
-      - ts
-      - drawlabels
+      - font: a string representing which font to use for the current transit system
+      - ts: the transit system drawn by the interface
+      - drawlabels: a boolean representing whether labels should be drawn
     """
-    screen: any
-    ds: dataset
+    screen: pygame.surface
+    ds: Dataset
     stations: list[str, str]
     calcdist: list[str]
     font: str
@@ -165,7 +171,7 @@ class Interface:
     def start(self) -> None:
         """Draw the GUI to <self.screen> for the first time.
         """
-        self.ds = dataset('./datasets/dataset/toronto.json')
+        self.ds = Dataset('./datasets/dataset/toronto.json')
 
         self.ts = ALL_TS['toronto']
         running = True
@@ -244,6 +250,7 @@ class Interface:
         pygame.quit()
 
 
+@check_contracts
 def interface_runner() -> None:
     """Run the GUI defined above using our train station data."""
     for ID in POSSIBLE_IDS:
@@ -255,6 +262,7 @@ def interface_runner() -> None:
     POSSIBLE_IDS.sort(key=lambda x: ALL_TS[x].transit_info_dict['transit_score'])
 
     new_inter = Interface()
+    print(type(new_inter.calcdist))
     new_inter.start()
 
 
