@@ -4,15 +4,6 @@ This file contains the 'Dataset' class, which is used by other files in our proj
 """
 import json
 
-COLORS = [(0, 0, 0), (150, 150, 150), (180, 0, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0),
-          (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0),
-          (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0),
-          (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0),
-          (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0),
-          (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0),
-          (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0),
-          (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0), (0, 180, 0)]
-
 
 class Dataset:
     """Class representing a data set (which stores transit-related data).
@@ -21,14 +12,12 @@ class Dataset:
       - loaded: dataset in dictionary form
       - file_path: location data set is loaded from
       - name: the name of the dataset
-      - cmap: mapping from a line of stations to colors
       - x_vals: list containing x-values of stations in the data set
       - y_vals: list containing y-values of stations in the data set
     """
     loaded: dict
     file_path: str
     name: str
-    cmap: dict
     x_vals: list[float]
     y_vals: list[float]
 
@@ -45,10 +34,9 @@ class Dataset:
         with open(train_dataset, "r") as file_obj:
             self.loaded = json.load(file_obj)
         self.file_path = file_path
-        self.cmap = dict(zip(self.loaded, COLORS))
 
-        self.x_vals = [self.loaded[x][y]['x'] for x in self.loaded for y in self.loaded[x]]
-        self.y_vals = [self.loaded[x][y]['y'] for x in self.loaded for y in self.loaded[x]]
+        self.x_vals = [self.loaded[a][b]['x'] for a in self.loaded for b in self.loaded[a]]
+        self.y_vals = [self.loaded[a][b]['y'] for a in self.loaded for b in self.loaded[a]]
 
 
 if __name__ == '__main__':
