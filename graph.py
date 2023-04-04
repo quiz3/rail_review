@@ -351,7 +351,7 @@ class TransitSystem:
         self.transit_info_dict["total_edge_length"] = total_edge_length
         self.transit_info_dict["transit_score"] = total_distance / total_paths / total_edge_length
 
-    def load_from_cache_dict(self, cache_file_name: str = './assets/cached_transit_stats.json') -> None:
+    def load_from_cache_dict(self, cache_file_name: str = 'cached_transit_stats.json') -> None:
         """Update transit_info_dict attribute by loading data from <cache_file_name>.
         """
         with open(cache_file_name, "r") as f:

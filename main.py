@@ -13,7 +13,7 @@ def run_quick_demo_test() -> None:
     """
     for city in ["Toronto", "Singapore"]:
         test_city = TransitSystem(city)
-        test_city.load_from_json(f"datasets/dataset/{city.lower()}.json")
+        test_city.load_from_json(f"{city.lower()}.json")
         # test_city.temporary_render(name_size=10, show_name=True)
         # shortest_path = test_city.find_shortest_path("Downsview", "Wilson")
         print("-" * 10 + f" {city} " + "-" * 10)
@@ -27,13 +27,13 @@ def run_quick_demo_test() -> None:
 
 
 if __name__ == "__main__":
-    # run_quick_demo_test()
+    run_quick_demo_test()
     interface_runner()
 
     # Run python-TA checks
-    import python_ta
-    python_ta.check_all(config={
-        'max-line-length': 120,
-        'extra-imports': ['interface', 'graph'],
-        'allowed-io': ['run_quick_demo_test']
-    })
+    # import python_ta
+    # python_ta.check_all(config={
+    #     'max-line-length': 120,
+    #     'extra-imports': ['interface', 'graph'],
+    #     'allowed-io': ['run_quick_demo_test']
+    # })

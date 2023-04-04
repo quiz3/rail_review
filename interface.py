@@ -167,7 +167,7 @@ class Interface:
     def start(self) -> None:
         """Draw the GUI to <self.screen> for the first time.
         """
-        self.ds = Dataset('./datasets/dataset/toronto.json')
+        self.ds = Dataset('toronto.json')
 
         self.ts = ALL_TS['toronto']
         running = True
@@ -211,7 +211,7 @@ class Interface:
                     self.stations[1] = ''
                     self.calcdist = []
 
-                    json_file = './datasets/dataset/' + str.lower(buttontext) + '.json'
+                    json_file = str.lower(buttontext) + '.json'
                     self.ds.load_dataset(json_file)
 
                     self.ts = ALL_TS[str.lower(buttontext)]
@@ -255,7 +255,7 @@ def interface_runner() -> None:
     for ID in POSSIBLE_IDS:
         ts = TransitSystem(ID)
         ts.load_from_cache_dict()
-        ts.load_from_json('./datasets/dataset/' + ID + '.json')
+        ts.load_from_json(ID + '.json')
         ALL_TS[ID] = ts
 
     POSSIBLE_IDS.sort(key=lambda x: ALL_TS[x].transit_info_dict['transit_score'])
